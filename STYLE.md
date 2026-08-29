@@ -86,6 +86,22 @@ other token occupies (everything else is within ~45° of a hero, a modality or a
 apart and opposite in a/b, so the pair survives every CVD type. Rose and `red` share L* ≈ 48 and
 never share a panel (query → embeddings; arms → differential panels).
 
+### Family ramps — ordered sub-categories — *settle*
+
+When a category splits into *ordered* sub-categories, they are a **lightness ramp of the parent
+hue** — dark for the focal / nearest / first, light for the rest — never new hues; new hues are spent
+only on genuinely different families (`ramp(token, n)`). Baselines already do this
+(`muted → slate → rule`); a method's ablations are tints of the method's hue.
+
+### cCRE classes — *settle*
+
+`pal_ccre` for ENCODE SCREEN composition bars: **PLS → pELS → dELS** is one olive ramp
+(`#596330 → #87905E → #B8C093`; ordinal by distance to TSS, light for dELS because it dominates
+every bar), **CTCF / CA / TF** collapse to one dusty blue `#708FA5` (TF-binding-defined, not
+histone-defined; C 16 so it never reads as `hit`), **none** is `rule`. Olive is the last hue arc
+more than 40° from every token; SCREEN's own red/orange/yellow/blue would collide with `red`, `atac`
+and `hit`.
+
 ### Tissue / many-category — *held*
 
 `pal_tissue`, 8 desaturated hues + `rule` for "Other" (context, not a competitor — and light enough
@@ -217,3 +233,5 @@ Heatmaps get an ink frame and token-coloured row-group strips.
 2026-08-29 — the system moves to its own repo (`matchafinn-design`, the `mfdesign` package);
 matcha2 is the first consumer. Figure-specific rules (acts, d→d zoom letters, dp) go to each
 repo's `ASSEMBLY.md`.
+
+2026-08-29 — v1.1.0: `pal_ccre` and `ramp()` (family ramps); matchafinn-apps is the second consumer.

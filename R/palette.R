@@ -21,3 +21,13 @@ pal_arm <- function(context = FALSE) {
 }
 scale_colour_arm <- function(context = FALSE, ...) ggplot2::scale_colour_manual(values = pal_arm(context), ...)
 scale_fill_arm <- function(context = FALSE, ...) ggplot2::scale_fill_manual(values = pal_arm(context), ...)
+
+# ENCODE SCREEN cCRE classes for composition bars (STYLE.md §2): PLS → pELS → dELS is one olive
+# lightness ramp (ordinal by distance to TSS; light for dELS, which dominates every bar), the
+# TF-binding-defined classes collapse to one dusty blue, "none" is rule grey.
+pal_ccre <- unlist(.tokens$ccre)
+
+# Family ramp (STYLE.md §2): ordered sub-categories of one family are lightness steps of that
+# family's hue, never new hues. `n` colours from the token toward `to` (`to` itself excluded):
+# ramp("matcha", 2)[2] is the pale step, ramp("matcha", 2, to = "black")[2] the dark one.
+ramp <- function(token, n, to = "white") grDevices::colorRampPalette(c(pal[[token]], to))(n + 1)[seq_len(n)]
