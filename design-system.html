@@ -1,0 +1,528 @@
+<title>Matcha + Finn Figure System</title>
+<style>
+:root{
+  --ground:#FFFFFF; --paper:#FFFFFF; --ink:#141414; --text:#2A2A2A; --mute:#6E6E6E; --faint:#9C9C9C;
+  --hair:#E3E3E3; --hair2:#CFCFCF; --card:#F7F7F7;
+  --accent:#1F6F52; --accent-ink:#FFFFFF; --finn:#33517F;
+  --chip-held:#E6F0EB; --chip-held-ink:#1F6F52;
+  --chip-settle:#FBF0DE; --chip-settle-ink:#8A5A12;
+  --chip-fig:#F2E8E6; --chip-fig-ink:#8E3A2E;
+  --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --serif:Charter,"Iowan Old Style","Palatino Linotype",Georgia,serif;
+  --mono:"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#161718; --ink:#ECECEA; --text:#D6D6D3; --mute:#9A9A97; --faint:#6E6E6B;
+    --hair:#2C2D2F; --hair2:#3A3B3E; --card:#1E1F21;
+    --accent:#6FB394; --accent-ink:#0F1F18;
+    --chip-held:#1E2F27; --chip-held-ink:#8FCBAE;
+    --chip-settle:#332916; --chip-settle-ink:#E2B26A;
+    --chip-fig:#33201D; --chip-fig-ink:#E29A8C;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#161718; --ink:#ECECEA; --text:#D6D6D3; --mute:#9A9A97; --faint:#6E6E6B;
+  --hair:#2C2D2F; --hair2:#3A3B3E; --card:#1E1F21;
+  --accent:#6FB394; --accent-ink:#0F1F18;
+  --chip-held:#1E2F27; --chip-held-ink:#8FCBAE;
+  --chip-settle:#332916; --chip-settle-ink:#E2B26A;
+  --chip-fig:#33201D; --chip-fig-ink:#E29A8C;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+.wrap{max-width:1080px;margin:0 auto;padding:40px 28px 96px}
+header{border-bottom:1px solid var(--ink);padding-bottom:20px;margin-bottom:8px}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+h1{font-family:var(--sans);font-weight:600;font-size:34px;letter-spacing:-.02em;margin:6px 0 10px;color:var(--ink);text-wrap:balance}
+.lede{font-family:var(--serif);font-size:17px;line-height:1.55;max-width:62ch;margin:0;color:var(--text)}
+.lede em{font-style:italic}
+nav.toc{display:flex;flex-wrap:wrap;gap:6px 18px;padding:14px 0 0;font-size:12.5px}
+nav.toc a{color:var(--mute);text-decoration:none}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a b{color:var(--ink);font-weight:600;margin-right:4px}
+section{padding:40px 0 8px;border-top:1px solid var(--hair);margin-top:32px}
+section:first-of-type{border-top:0}
+.sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:6px}
+.sec-head .num{font-family:var(--mono);font-size:12px;color:var(--mute)}
+h2{font-size:22px;font-weight:600;letter-spacing:-.015em;margin:0;color:var(--ink)}
+h3{font-size:14px;font-weight:600;margin:28px 0 8px;color:var(--ink);display:flex;align-items:center;gap:10px}
+p{max-width:66ch}
+p.rule{font-family:var(--serif);font-size:15.5px;line-height:1.55}
+.chip{display:inline-block;font-family:var(--sans);font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:2px;vertical-align:middle}
+.chip.held{background:var(--chip-held);color:var(--chip-held-ink)}
+.chip.settle{background:var(--chip-settle);color:var(--chip-settle-ink)}
+.chip.fig{background:var(--chip-fig);color:var(--chip-fig-ink)}
+.legend-chips{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--mute);margin:14px 0 0}
+.legend-chips span{display:flex;gap:6px;align-items:center}
+
+/* principles */
+ol.principles{list-style:none;padding:0;margin:14px 0 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px 28px;counter-reset:p}
+ol.principles li{counter-increment:p;display:grid;grid-template-columns:28px 1fr;gap:8px;font-family:var(--serif);font-size:15px;line-height:1.5}
+ol.principles li::before{content:counter(p);font-family:var(--mono);font-size:12px;color:var(--mute);padding-top:3px}
+ol.principles b{font-family:var(--sans);font-weight:600;color:var(--ink);font-size:14px}
+
+/* swatches */
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin-top:10px}
+.sw{background:var(--paper);border:1px solid var(--hair2);border-radius:2px;overflow:hidden;color:#141414}
+.sw .block{height:74px;position:relative}
+.sw .meta{padding:9px 11px 11px;font-size:12.5px;line-height:1.4}
+.sw .tok{font-family:var(--mono);font-size:12.5px;font-weight:600;display:flex;justify-content:space-between}
+.sw .tok .hex{font-weight:400;color:#6E6E6E}
+.sw .role{color:#3A3A3A;margin-top:3px}
+.sw .lch{font-family:var(--mono);font-size:10.5px;color:#8A8A8A;margin-top:5px}
+.sw.pair .block{display:grid;grid-template-columns:1fr 1fr}
+.sw.pair .block > div{position:relative}
+.sw.pair .block .cap{position:absolute;left:6px;bottom:4px;font-family:var(--mono);font-size:9.5px;color:rgba(0,0,0,.55);background:rgba(255,255,255,.72);padding:1px 4px;border-radius:2px}
+.sw .block .cap.light{color:rgba(255,255,255,.85);background:rgba(0,0,0,.35)}
+.note{font-size:12.5px;color:var(--mute);max-width:66ch;margin:10px 0 0}
+.note b{color:var(--ink);font-weight:600}
+.flag{border-left:2px solid var(--accent);padding:8px 14px;margin:16px 0 0;max-width:66ch;font-size:13.5px;background:var(--card)}
+.flag b{color:var(--ink)}
+.tissue-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.tissue-row .t{width:68px;background:var(--paper);border:1px solid var(--hair2);border-radius:2px;overflow:hidden;color:#141414}
+.tissue-row .t div{height:36px}
+.tissue-row .t span{display:block;font-family:var(--mono);font-size:9.5px;padding:4px 5px;color:#555}
+.ramp{height:22px;border-radius:2px;border:1px solid var(--hair2);margin-top:8px}
+.ramp-row{display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:center;margin-top:10px;font-size:12.5px}
+.ramp-row .lab{color:var(--ink);font-weight:600}
+.ramp-row .lab small{display:block;font-weight:400;color:var(--mute);font-family:var(--mono);font-size:11px}
+.ramp-ends{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:var(--mute);margin-top:3px}
+
+/* type */
+table.ramp-t{border-collapse:collapse;width:100%;margin-top:10px;font-size:13px}
+table.ramp-t th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);text-align:left;font-weight:600;padding:6px 10px;border-bottom:1px solid var(--ink)}
+table.ramp-t td{padding:10px;border-bottom:1px solid var(--hair);vertical-align:middle}
+table.ramp-t td.tok{font-family:var(--mono);font-weight:600;white-space:nowrap}
+table.ramp-t td.pt{font-family:var(--mono);color:var(--mute);white-space:nowrap;font-variant-numeric:tabular-nums}
+.spec{font-family:Arial,Helvetica,sans-serif;color:#141414;background:var(--paper);display:inline-block;padding:4px 8px;border:1px solid var(--hair2);border-radius:2px;line-height:1.2;white-space:nowrap}
+.spec.x3{transform-origin:left center}
+td.role{color:var(--text)}
+
+/* strokes */
+.stroke-grid{display:grid;grid-template-columns:150px 1fr 1fr;gap:0 16px;align-items:center;margin-top:10px;font-size:13px}
+.stroke-grid > div{padding:10px 0;border-bottom:1px solid var(--hair)}
+.stroke-grid .h{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);font-weight:600;border-bottom:1px solid var(--ink);padding:6px 0}
+.stroke-grid .lab{color:var(--ink);font-weight:600}
+.stroke-grid .lab small{display:block;font-weight:400;color:var(--mute);font-family:var(--mono);font-size:11px}
+.stroke-grid svg{display:block;background:var(--paper);border:1px solid var(--hair2);border-radius:2px}
+.pts{display:flex;gap:18px;align-items:flex-end;margin-top:12px;flex-wrap:wrap}
+.pts .p{background:var(--paper);border:1px solid var(--hair2);border-radius:2px;padding:10px 12px 8px;min-width:120px;color:#141414}
+.pts .p svg{display:block;margin:0 auto 6px}
+.pts .p .n{font-family:var(--mono);font-size:11px;color:#555;text-align:center;font-variant-numeric:tabular-nums}
+.pts .p .r{font-size:11.5px;color:#333;text-align:center}
+
+/* mock panels */
+.panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:12px}
+.panel{background:var(--paper);border:1px solid var(--hair2);border-radius:2px;padding:12px 12px 8px;color:#141414}
+.panel svg{display:block;width:100%;height:auto}
+.panel .cap{font-size:12px;color:#555;margin-top:6px;line-height:1.4}
+.panel .cap b{font-family:var(--mono);font-weight:600;color:#141414}
+
+/* rule lists */
+ul.rules{padding-left:0;list-style:none;margin:8px 0 0;max-width:72ch}
+ul.rules li{font-family:var(--serif);font-size:15px;line-height:1.5;padding:8px 0;border-bottom:1px solid var(--hair);display:flex;gap:12px;align-items:flex-start}
+ul.rules li .chip{flex:none;margin-top:4px}
+ul.rules li code{font-family:var(--mono);font-size:12.5px;background:var(--card);padding:1px 5px;border-radius:2px}
+code{font-family:var(--mono);font-size:12.5px}
+pre{font-family:var(--mono);font-size:12px;background:var(--card);border:1px solid var(--hair);padding:12px 14px;border-radius:2px;overflow-x:auto;max-width:72ch;line-height:1.5}
+
+/* layout diagram */
+.canvas-wrap{margin-top:12px;max-width:600px}
+.canvas-wrap svg{width:100%;height:auto;display:block;background:var(--paper);border:1px solid var(--hair2);border-radius:2px}
+
+/* questions */
+.qs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-top:12px}
+.q{border:1px solid var(--hair2);border-radius:2px;padding:12px 14px;background:var(--card);font-size:13.5px;line-height:1.5}
+.q b{display:block;color:var(--ink);margin-bottom:4px}
+.q .where{font-family:var(--mono);font-size:11px;color:var(--mute)}
+footer{margin-top:48px;padding-top:14px;border-top:1px solid var(--hair);font-size:12px;color:var(--mute);font-family:var(--mono)}
+@media (max-width:640px){.stroke-grid{grid-template-columns:1fr}.ramp-row{grid-template-columns:1fr}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">matcha2 · finn2 · matchafinn-apps — shared figure system · draft for review</div>
+  <h1>Matcha + Finn figure design system</h1>
+  <p class="lede">One visual language for every figure across the Matcha/Finn repos. This page renders what <code>STYLE.md</code> says, so we can argue about what we <em>see</em>. Everything on white “paper” cards is shown as it prints; page chrome is deliberately untinted so it doesn’t colour the judgement.</p>
+  <nav class="toc">
+    <a href="#s1"><b>1</b>Principles</a><a href="#s2"><b>2</b>Colour</a><a href="#s3"><b>3</b>Type</a><a href="#s4"><b>4</b>Strokes &amp; points</a><a href="#s5"><b>5</b>In use</a><a href="#s6"><b>6</b>Legends</a><a href="#s7"><b>7</b>Layout</a><a href="#s8"><b>8</b>Pipeline</a><a href="#s9"><b>9</b>Open questions</a>
+  </nav>
+  <div class="legend-chips">
+    <span><i class="chip held">held</i> already true everywhere</span>
+    <span><i class="chip settle">settle</i> inconsistent; the rule shown is the resolution</span>
+    <span><i class="chip fig">figure-specific?</i> my flag: reads as Fig-1/manuscript detail, candidate to move out of the shared system</span>
+  </div>
+</header>
+
+<!-- 1 ─────────────────────────────────────────────── -->
+<section id="s1">
+  <div class="sec-head"><span class="num">§1</span><h2>Principles</h2></div>
+  <p class="note">Swiss discipline (hairlines, restraint, fewest sizes); the colour is ours.</p>
+  <ol class="principles">
+    <li><div><b>Colour encodes identity, never emphasis.</b> A hue means one thing across the whole paper. Nothing is coloured to look important.</div></li>
+    <li><div><b>Grey carries everything that is not the claim</b> — backgrounds, non-hits, nulls, context. Colour is reserved for what the method did.</div></li>
+    <li><div><b>The null or threshold is drawn, not asserted</b> — dashed cutoffs, grey null tracks, a-priori constants labelled on the plot.</div></li>
+    <li><div><b>One coordinate system, reused</b> — a row order or locus window fixed once so panels compare without being told to.</div></li>
+    <li><div><b>Frames are nearly absent</b> — hairline axes, no gridlines, no boxes, no legend frames; panel titles as plain text.</div></li>
+    <li><div><b>Schematics carry real thumbnails, not icons</b>, drawn in the same tokens as the data panels.</div></li>
+    <li><div><b>Constraints first</b> — every glyph ≥ 5 pt at 1:1, verified by a script, never eyeballed.</div></li>
+  </ol>
+</section>
+
+<!-- 2 ─────────────────────────────────────────────── -->
+<section id="s2">
+  <div class="sec-head"><span class="num">§2</span><h2>Colour tokens</h2></div>
+  <p class="rule">Names are semantic. Scripts reference tokens (<code>pal$matcha</code>, <code>scale_colour_method()</code>), never hex literals. Muted throughout; saturation belongs to the two heroes. <em>Reading: colour = the hero acted; slate = a competitor; rule-grey = nothing tried.</em></p>
+
+  <h3>Heroes — the two method families <i class="chip settle">settle</i></h3>
+  <div class="swatches" id="sw-heroes"></div>
+  <p class="note">Finn is indigo <b>everywhere</b>. Deep tints (<code>#1F6F52</code>, identity matcha) are for screen text and slides, not for marks.</p>
+  <div class="flag"><b>Decided 2026-08-29:</b> Finn stays <code>#33517F</code>. A brighter indigo lands on <b>hit</b>’s hue (277° vs 280°); the dark one reads as authoritative, and keeps 20 L* below matcha.</div>
+
+  <h3>Neutrals — one family, chroma 0 <i class="chip settle">settle</i></h3>
+  <div class="swatches" id="sw-neutrals"></div>
+  <p class="note">True greys (C = 0), each at the <b>same lightness</b> as the green-tinted value it replaces (muted L 50, slate L 63, rule L 88), so nothing already exported shifts in weight. Panels export transparent and are always assumed to sit on white — there is no ground token. Two or more baselines in one panel → lightness ramp <code>muted → slate → rule</code> with shape/linetype as the redundant channel; never a second hue.</p>
+  <div class="flag"><b>Decided 2026-08-29:</b> the green-tinted family (<code>#6B7A71 · #8C9AA6 · #D6DED8</code>) retires; neutrals are pure grey at matched lightness. <code>ground</code> is dropped — four neutrals, not five. Only the heroes and modality carry hue.</div>
+
+  <h3>Modality <i class="chip held">held</i></h3>
+  <div class="swatches" id="sw-modality"></div>
+  <p class="note">Lightness (amber light, plum dark) is the CVD backup; shape (ATAC ▲ / ChIP ●) where points mix.</p>
+
+  <h3>Accents — exactly two <i class="chip settle">settle</i></h3>
+  <div class="swatches" id="sw-accents"></div>
+  <p class="note"><b>red</b> is the one red (the annual-review query red): the query mark (an all-stroke asterisk, so it hides nothing) and any “disease/case” arm — the hue absent from viridis. <b>hit</b> marks a same-context hit in a ranked list; misses are slate.</p>
+
+  <h3>Arms — case / control <i class="chip settle">settle</i></h3>
+  <p class="rule"><b>Case is always rose. Control is teal when it is a compared arm, slate when it is context.</b> Disease vs healthy (fibroid vs myometrium) gets its own pair because <code>red</code> is the query and must not double as “disease”. Rose (~350°) and teal (~195°) are the only hue arcs not already spoken for — everything else sits within ~45° of a hero, a modality, or an accent. <code>scale_colour_arm()</code>, <code>context = TRUE</code> for the slate form.</p>
+  <div class="swatches" id="sw-case"></div>
+  <div class="panels" style="margin-top:14px">
+    <div class="panel"><svg id="mock-case" viewBox="0 0 260 150"></svg><div class="cap"><b>A · compared arms — rose vs teal.</b> Both arms are claims (fibroid vs myometrium); 14 L* apart and opposite in a/b, so it survives every CVD type. The diverging ramp below reuses the same endpoints, so “more in disease” and “disease arm” are one hue.</div></div>
+    <div class="panel"><svg id="mock-case2" viewBox="0 0 260 150"></svg><div class="cap"><b>B · control as context — rose vs slate.</b> Principle 2: grey carries what is not the claim. Use when the healthy arm is a reference the case is read against, not a comparison — or when a panel already carries teal for something else.</div></div>
+  </div>
+  <div class="ramp-row"><div class="lab">Diverging<small>differential binding</small></div><div><div class="ramp" style="background:linear-gradient(90deg,#5FA19F,#B5D2D0,#FFFFFF,#E2BDCC,#AD547F)"></div><div class="ramp-ends"><span>teal (control)</span><span>0</span><span>rose (case)</span></div></div></div>
+  <p class="note">Teal ↔ rose replaces red ↔ blue for the ramp: with <b>red</b> = query and <b>hit</b> = blue, a red↔blue colourbar would borrow both accents’ meanings. Rose ↔ teal keeps each hue to one job. Rose and <b>red</b> share L* ≈ 48 and should never share a panel — they don’t: the query lives in embeddings, case/control in differential panels.</p>
+
+  <h3>Tissue / many-category <i class="chip held">held</i></h3>
+  <div class="tissue-row" id="sw-tissue"></div>
+  <p class="note">8 desaturated hues + <b>rule</b> for “Other” (context, not a competitor); cap at 8. Only where colour is the sole encoder and illustrative (a UMAP by tissue). These hues are <b>not</b> available for other meanings. “Other” had drifted from <code>grey80</code> (annual-review tag) to slate, which made the grey 8th hue unreadable; on rule grey the full 8 hold.</p>
+
+  <h3>Family ramps — ordered sub-categories <i class="chip settle">settle</i></h3>
+  <p class="rule">When a category splits into <em>ordered</em> sub-categories, the sub-categories are a <b>lightness ramp of the parent hue</b> — dark for the focal / nearest / first, light for the rest — never new hues. New hues are spent only on genuinely different families. (This is what the ClairS and rE2G moodboard figures do: precision/recall/F1 as three tints of one method colour; predictor families as ramps.) Baselines already follow it (<code>muted → slate → rule</code>); modality is a two-step ramp across two hues.</p>
+
+  <h3>cCRE classes — proposal <i class="chip settle">settle</i></h3>
+  <p class="rule">ENCODE SCREEN v4 classes for a stacked composition bar (matchafinn-apps, Fig 6). Three families, not eight colours: <b>PLS → pELS → dELS</b> is ordinal by distance to TSS, so it is one olive ramp (dark at the promoter, light distal — and light for dELS, which is 56–93 % of every bar); <b>CTCF / CA / TF</b> is the second family (TF-binding-defined rather than histone-defined), one dusty blue; <b>no cCRE</b> is context, <code>rule</code>. Olive (~115°) is the last hue arc not within 40° of a token; dusty blue is low-chroma (C 16) so it does not read as <code>hit</code>.</p>
+  <div class="swatches" id="sw-ccre"></div>
+  <div class="panels" style="margin-top:14px;grid-template-columns:repeat(auto-fit,minmax(260px,420px))">
+    <div class="panel"><svg id="mock-ccre" viewBox="0 0 300 150"></svg><div class="cap">Real composition from <b>dars_ccre_summary.json</b>: DAR tiers × cCRE class. Segments ordered PLS → pELS → dELS → CTCF/CA/TF → none from the baseline, so the ramp reads as one bar filling up from the promoter outward.</div></div>
+  </div>
+  <p class="note">The ENCODE SCREEN colours (red / orange / yellow / blue / pink) are deliberately not used: they are saturated identity colours in another system and would collide with <b>red</b>, <b>atac</b> and <b>hit</b> here.</p>
+
+  <h3>Continuous scales — three ramps, keyed to what they measure <i class="chip held">held</i></h3>
+  <div class="ramp-row"><div class="lab">Signal<small>read density · deeptools heatmaps · tracks</small></div><div><div class="ramp" style="background:linear-gradient(90deg,#FEF5EB,#E0A458 55%,#6E3013)"></div><div class="ramp-ends"><span>0</span><span>atac amber at mid</span><span>max</span></div></div></div>
+  <div class="ramp-row"><div class="lab">Score<small>cosine · co-binding r · −log₁₀ p_adj · AUPRC</small></div><div><div class="ramp" id="ramp-viridis"></div><div class="ramp-ends"><span>rule grey (&lt; 0)</span><span>0</span><span>1</span></div></div></div>
+  <div class="ramp-row"><div class="lab">Diverging<small>case vs control only</small></div><div><div class="ramp" style="background:linear-gradient(90deg,#5FA19F,#B5D2D0,#FFFFFF,#E2BDCC,#AD547F)"></div><div class="ramp-ends"><span>control</span><span>0</span><span>case</span></div></div></div>
+  <p class="note"><b>Signal</b> is an amber ramp that passes through the <b>atac</b> token (white → atac → dark umber), so an accessibility heatmap is visibly “ATAC-coloured” — the same instinct as YlOrRd, but it ends in umber, not red, so it never quotes <b>red</b>. <b>Score</b> is viridis for any abstract 0–1 quantity; below zero collapses to rule grey on the same bar (<code>scale_fill_cosine()</code>). <b>Co-binding r</b> is a score: it is one-directional in practice (nearly all r ≥ 0), so it takes the score ramp with r &lt; 0 → rule, not a diverging ramp — diverging is reserved for the arms. <b>p_adj</b> also takes the score ramp (as −log₁₀), with count as size: the blue → magenta → red default of clusterProfiler dot plots is a two-ended ramp on a one-ended quantity and would quote both <b>hit</b> and <b>red</b>.</p>
+</section>
+
+<!-- 3 ─────────────────────────────────────────────── -->
+<section id="s3">
+  <div class="sec-head"><span class="num">§3</span><h2>Type</h2><i class="chip held">held</i></div>
+  <p class="rule">Arial, black, upright, sentence case; the panel letter alone is Arial Black. Three sizes per panel at most. Specimens below are set at their <em>true point size</em> (what prints) and at 3× so you can read them here.</p>
+  <table class="ramp-t">
+    <thead><tr><th>token</th><th>pt</th><th>1:1</th><th>3×</th><th>role</th></tr></thead>
+    <tbody>
+      <tr><td class="tok">fs_label</td><td class="pt">8 · Arial Black</td><td><span class="spec" style="font-size:8pt;font-family:'Arial Black',Arial;font-weight:900">b</span></td><td><span class="spec" style="font-size:24pt;font-family:'Arial Black',Arial;font-weight:900">b</span></td><td class="role">panel letter — <b>Arial Black</b>, not bold Arial; lowercase; set only in Inkscape, never by a panel script</td></tr>
+      <tr><td class="tok">fs_base</td><td class="pt">7</td><td><span class="spec" style="font-size:7pt">Cosine similarity</span></td><td><span class="spec" style="font-size:21pt">Cosine similarity</span></td><td class="role">axis titles, legend titles, strip titles, panel title, on-plot effect labels</td></tr>
+      <tr><td class="tok">fs_small</td><td class="pt">6</td><td><span class="spec" style="font-size:6pt">0.25  0.50  0.75  1.00</span></td><td><span class="spec" style="font-size:18pt">0.25  0.50  0.75  1.00</span></td><td class="role">tick labels, legend text, most in-panel annotation, direct labels</td></tr>
+      <tr><td class="tok">fs_min</td><td class="pt">5</td><td><span class="spec" style="font-size:5pt;color:#6E6E6E">#1 B cell · GM12878</span></td><td><span class="spec" style="font-size:15pt;color:#6E6E6E">#1 B cell · GM12878</span></td><td class="role">dense text only: rank/context labels, gene names, track strips, schematic numerals</td></tr>
+    </tbody>
+  </table>
+  <ul class="rules">
+    <li><i class="chip held">held</i><span>Gene names <em>italic</em>; TF names upright. <code>geom_text(size = pt2mm(fs_*))</code>, never a bare number.</span></li>
+    <li><i class="chip held">held</i><span>Panel titles plain 7 pt, left-aligned at the axis origin; schematic stage titles centred over the stage.</span></li>
+    <li><i class="chip fig">figure-specific?</i><span>Numbers: cosine 2 dp, weights/AUPRC 3 dp. — Precision rules belong with the metric, not the system; keep only “<code>tabular-nums</code> in tables”.</span></li>
+  </ul>
+</section>
+
+<!-- 4 ─────────────────────────────────────────────── -->
+<section id="s4">
+  <div class="sec-head"><span class="num">§4</span><h2>Strokes, points, dashes</h2><i class="chip settle">settle</i></div>
+  <div class="stroke-grid">
+    <div class="h">weight</div><div class="h">1:1</div><div class="h">4×</div>
+    <div class="lab">hairline<small>0.25 pt</small></div><div><svg viewBox="0 0 200 20" height="20"><line x1="8" y1="10" x2="192" y2="10" stroke="#141414" stroke-width="0.333"/></svg></div><div><svg viewBox="0 0 200 20" height="20"><line x1="8" y1="10" x2="192" y2="10" stroke="#141414" stroke-width="1.333"/></svg></div>
+    <div class="lab">rule<small>0.4 pt</small></div><div><svg viewBox="0 0 200 20" height="20"><line x1="8" y1="10" x2="192" y2="10" stroke="#141414" stroke-width="0.533"/></svg></div><div><svg viewBox="0 0 200 20" height="20"><line x1="8" y1="10" x2="192" y2="10" stroke="#141414" stroke-width="2.133"/></svg></div>
+    <div class="lab">emphasis<small>0.6 pt</small></div><div><svg viewBox="0 0 200 20" height="20"><line x1="8" y1="10" x2="192" y2="10" stroke="#141414" stroke-width="0.8"/></svg></div><div><svg viewBox="0 0 200 20" height="20"><line x1="8" y1="10" x2="192" y2="10" stroke="#141414" stroke-width="3.2"/></svg></div>
+    <div class="lab">dash<small>linetype "22" · muted</small></div><div><svg viewBox="0 0 200 20" height="20"><line x1="8" y1="10" x2="192" y2="10" stroke="#767676" stroke-width="0.533" stroke-dasharray="1.07 1.07"/></svg></div><div><svg viewBox="0 0 200 20" height="20"><line x1="8" y1="10" x2="192" y2="10" stroke="#767676" stroke-width="2.133" stroke-dasharray="4.27 4.27"/></svg></div>
+  </div>
+  <p class="note">hairline → gene introns, evidence rules, zoom leaders, thresholds, schematic connectors. rule → axes, ticks, track baselines. emphasis → data lines, CI bars, gene exons. Dashes are for a-priori constants and thresholds, always muted, always labelled on the plot.</p>
+
+  <h3>Point sizes <span class="note" style="margin:0;font-weight:400">(ggplot <code>size</code>; diameter ≈ size × 2.85 pt)</span></h3>
+  <div class="pts">
+    <div class="p"><svg width="60" height="40" viewBox="0 0 60 40"><g id="cloud"></g></svg><div class="n">0.18 · α 0.6</div><div class="r">cloud — dense embeddings, rasterised 900 dpi</div></div>
+    <div class="p"><svg width="60" height="40" viewBox="0 0 60 40"><circle cx="30" cy="20" r="1.9" fill="#3F8E6E"/></svg><div class="n">1.0</div><div class="r">data — swarms, scatter</div></div>
+    <div class="p"><svg width="60" height="40" viewBox="0 0 60 40"><circle cx="30" cy="20" r="3.05" fill="#3F8E6E"/></svg><div class="n">1.6</div><div class="r">mean / legend key</div></div>
+    <div class="p"><svg width="60" height="40" viewBox="0 0 60 40"><g stroke="#E31A1C" stroke-width="0.9" stroke-linecap="round"><line x1="30" y1="13" x2="30" y2="27"/><line x1="23" y1="20" x2="37" y2="20"/><line x1="25" y1="15" x2="35" y2="25"/><line x1="35" y1="15" x2="25" y2="25"/></g></svg><div class="n">3 × pt<sup>0.5</sup></div><div class="r">query — asterisk, sub-linear with zoom</div></div>
+  </div>
+</section>
+
+<!-- 5 ─────────────────────────────────────────────── -->
+<section id="s5">
+  <div class="sec-head"><span class="num">§5</span><h2>The tokens in use</h2></div>
+  <p class="rule">Three mock panels drawn only from the tokens above (synthetic data), at roughly 2× print size. This is the language; the real panels should look like these.</p>
+  <div class="panels">
+    <div class="panel"><svg id="mock-embed" viewBox="0 0 260 200"></svg><div class="cap">Co-embedding by modality: <b>atac</b> ▲ light, <b>chip</b> ● dark, the query as a <b>red</b> asterisk. Hairline arrow-axes, no frame, direct legend in dead space.</div></div>
+    <div class="panel"><svg id="mock-rank" viewBox="0 0 260 200"></svg><div class="cap">Ranked list: <b>hit</b> bars for same-context, <b>slate</b> for misses; the threshold τ drawn dashed in <b>muted</b> and labelled; rank/context labels at <b>fs_min</b>.</div></div>
+    <div class="panel"><svg id="mock-curve" viewBox="0 0 260 200"></svg><div class="cap">Methods: <b>matcha</b> vs the <b>slate</b> baseline, <b>finn</b> downstream; the chance floor is a <b>rule</b>-grey band. Emphasis strokes for data, rule strokes for axes.</div></div>
+  </div>
+</section>
+
+<!-- 6 ─────────────────────────────────────────────── -->
+<section id="s6">
+  <div class="sec-head"><span class="num">§6</span><h2>Legends and labels</h2></div>
+  <ul class="rules">
+    <li><i class="chip held">held</i><span><b>Direct labels beat legends.</b> Label clusters/lines on the plot (muted, <code>fs_small</code>) when ≤ 8 items fit; a legend only when they don’t.</span></li>
+    <li><i class="chip held">held</i><span>Each legend <b>once per figure</b>; a key shared by two panels lives between them.</span></li>
+    <li><i class="chip held">held</i><span>Placement priority: inside the panel’s dead space → above the panel, horizontal, left-justified → right of the panel. Keys 7 pt. Colourbars vertical at the right, 6 pt wide, one per figure. No legend background or frame.</span></li>
+    <li><i class="chip fig">figure-specific?</i><span>Row/track labels sit left as horizontal strips, vertically centred on their row. Ranks as <code>#1</code>; context names in muted. — Track/rank conventions belong to the signal + ranked-list panels; general enough to keep, but phrase as “row labels” not “track labels”?</span></li>
+  </ul>
+
+  <h3>Heatmaps — the one place a frame is allowed <i class="chip held">held</i></h3>
+  <div class="panels" style="grid-template-columns:repeat(auto-fit,minmax(260px,360px))">
+    <div class="panel"><svg id="mock-heat" viewBox="0 0 220 230"></svg><div class="cap">deeptools-style (now what <b>fig6/a_dar_heatmap.R</b> does): profile above in the row-group colours, <b>ink</b> 0.4 pt frame around each raster (a raster needs an extent), a 2 mm row-group strip on the left in the group’s own token (here the <b>arms</b>), the <b>signal</b> ramp, one colourbar at the right.</div></div>
+  </div>
+  <ul class="rules">
+    <li><i class="chip settle">settle</i><span><b>Frame:</b> ink 0.4 pt around the raster only — not around the profile, not around the figure. Principle 5 still holds everywhere else.</span></li>
+    <li><i class="chip settle">settle</i><span><b>Row groups:</b> a left strip, 2 mm, filled with the group’s token (arms, cCRE class, tissue), label rotated inside it in <code>fs_small</code> white or ink by contrast. The profile plot above uses the same colours — the strip is its legend.</span></li>
+    <li><i class="chip settle">settle</i><span><b>Resolution:</b> rasterise at ≥ 600 dpi with ≥ 1 bin per output pixel (deeptools <code>--binSize</code> small, or <code>interpolate = TRUE</code>), so the image reads as continuous, not blocky. Rows sorted by mean signal, descending.</span></li>
+    <li><i class="chip settle">settle</i><span><b>Colourbar:</b> one per figure, right, 6 pt wide, ticks in <code>fs_small</code>; a shared scale across the panels it serves.</span></li>
+  </ul>
+</section>
+
+<!-- 7 ─────────────────────────────────────────────── -->
+<section id="s7">
+  <div class="sec-head"><span class="num">§7</span><h2>Layout and assembly</h2></div>
+  <div class="canvas-wrap">
+    <svg viewBox="0 0 400 300">
+      <rect x="20" y="20" width="360" height="260" fill="none" stroke="#141414" stroke-width="0.8"/>
+      <g fill="none" stroke="#D6D6D6" stroke-width="0.5" stroke-dasharray="2 2">
+        <line x1="130" y1="20" x2="130" y2="280"/><line x1="146" y1="20" x2="146" y2="280"/>
+        <line x1="256" y1="20" x2="256" y2="280"/><line x1="272" y1="20" x2="272" y2="280"/>
+        <line x1="20" y1="132" x2="380" y2="132"/><line x1="20" y1="148" x2="380" y2="148"/>
+      </g>
+      <g fill="#F1F1F1" stroke="#CFCFCF" stroke-width="0.5">
+        <rect x="20" y="20" width="110" height="112"/><rect x="146" y="20" width="110" height="112"/><rect x="272" y="20" width="108" height="112"/>
+        <rect x="20" y="148" width="236" height="132"/><rect x="272" y="148" width="108" height="132"/>
+      </g>
+      <g font-family="Arial Black,Arial" font-size="11" font-weight="900" fill="#141414">
+        <text x="22" y="16">a</text><text x="148" y="16">b</text><text x="274" y="16">c</text><text x="22" y="144">d</text><text x="274" y="144">e</text>
+      </g>
+      <g font-family="Helvetica Neue,Arial" font-size="8" fill="#6E6E6E">
+        <text x="200" y="296" text-anchor="middle">180 mm</text>
+        <text x="138" y="80" text-anchor="middle" transform="rotate(-90 138 80)">8 mm gutter</text>
+        <text x="392" y="150" text-anchor="middle" transform="rotate(90 392 150)">≤ 225 mm</text>
+      </g>
+      <line x1="20" y1="290" x2="380" y2="290" stroke="#6E6E6E" stroke-width="0.5"/><line x1="20" y1="287" x2="20" y2="293" stroke="#6E6E6E" stroke-width="0.5"/><line x1="380" y1="287" x2="380" y2="293" stroke="#6E6E6E" stroke-width="0.5"/>
+    </svg>
+  </div>
+  <ul class="rules">
+    <li><i class="chip held">held</i><span><b>Canvas 180 mm wide</b>, ≤ 225 mm tall. Panels exported at their final mm box, placed 1:1 in Inkscape, never scaled.</span></li>
+    <li><i class="chip held">held</i><span><b>Grid:</b> 8 mm gutters; align axis origins across a row and left edges down a column; one baseline per row.</span></li>
+    <li><i class="chip held">held</i><span><b>Panel letters:</b> 8 pt Arial Black, lowercase, top-left, a fixed 1 mm outside the panel’s ink box. Inkscape only.</span></li>
+    <li><i class="chip fig">figure-specific?</i><span>“Three acts per method figure: mechanism → one worked instance → the population.” — a narrative template for the method figures, not a visual rule. Move to the manuscript’s assembly notes.</span></li>
+    <li><i class="chip fig">figure-specific?</i><span>Zoom (d→e): source box ink 0.4 pt; two rule-grey 0.25 pt leaders to the zoom’s corners. — The <em>magnifier convention</em> is general; the panel letters are not.</span></li>
+    <li><i class="chip fig">figure-specific?</i><span>Schematics: 1 unit = 1 mm, flat fills, 0.18 pt outlines, closed 22° arrow heads. — General enough to keep; drop the <code>a_schematic.py</code> file reference.</span></li>
+  </ul>
+</section>
+
+<!-- 8 ─────────────────────────────────────────────── -->
+<section id="s8">
+  <div class="sec-head"><span class="num">§8</span><h2>Export pipeline &amp; enforcement</h2><i class="chip held">held</i></div>
+<pre>save_panel(p, "&lt;letter&gt;_&lt;what&gt;", width_mm, height_mm)   # SVG (svglite) + PDF + PNG, transparent
+crop_panel("&lt;letter&gt;_&lt;what&gt;")                            # trim to visible ink
+split_panel("bc_x", "b_x", "c_x")                       # two-cell patchwork → equal standalone halves
+
+grep -nE '#[0-9A-Fa-f]{6}|"grey[0-9]+"' make_figures/panels/*.R   # tokens only: expect no output
+python3 …/audit_panel.py figures/panels/*.svg                       # font floor / width at 1:1</pre>
+  <ul class="rules">
+    <li><i class="chip held">held</i><span>SVG/PDF are the deliverables, PNG the preview. Text stays text until the final flattened submission copy.</span></li>
+    <li><i class="chip settle">settle</i><span>Sharing: <code>make_figures/theme/</code> + <code>helpers.R</code> in matcha2 are canonical; finn2 vendors them with <code>ops/sync-figstyle.sh</code>; repo-specific <code>pal_method</code> names live in each repo’s <code>_common.R</code>. — matchafinn-apps needs the same tokens as CSS/JS; the palette should be emitted once (e.g. a JSON) and consumed by R and the web.</span></li>
+    <li><i class="chip fig">figure-specific?</i><span>Naming <code>fig&lt;N&gt;_&lt;letter&gt;_&lt;what&gt;.svg</code> — the repo already dropped the <code>fig1_</code> prefix; the rule should say what the repos actually do.</span></li>
+    <li><i class="chip fig">figure-specific?</i><span>§9 decisions log (“same-context hit bars keep hit blue”, “motif baseline = rule grey null”) — paper decisions, not the system. Keep the log, but in the manuscript repo.</span></li>
+  </ul>
+</section>
+
+<!-- 9 ─────────────────────────────────────────────── -->
+<section id="s9">
+  <div class="sec-head"><span class="num">§9</span><h2>Open questions</h2></div>
+  <p class="note">Things I’d like your call on, in the order they change the most downstream.</p>
+  <div class="qs">
+    <div class="q"><b>Where do figure-specific rules go?</b>Everything chipped <i class="chip fig">figure-specific?</i> — agree they move to <code>ASSEMBLY.md</code> / the manuscript repo, leaving this page as the shared system?<div class="where">§3 §6 §7 §8</div></div>
+    <div class="q"><b>Screen variant</b>matchafinn-apps needs the same tokens on screen (ground, ink, dark mode). Should the system define the screen palette here, or only the print one and derive screen from it?<div class="where">§8</div></div>
+  </div>
+</section>
+
+<footer>source: make_figures/STYLE.md · make_figures/theme/palette.R · rendered 2026-08-29 · v1.0 — Finn stays; signal ramp + heatmap conventions held (DAR heatmap restyled)</footer>
+</div>
+
+<script>
+(function(){
+  // ---- tokens (palette.R) ----
+  const T = {
+    heroes:[['matcha','#3F8E6E','Matcha: retrieval, embedding similarity, the rank'],['finn','#33517F','Finn: weights, the synthesized track, anything downstream of the blend']],
+    neutrals:[['ink','#000000','all text, axes, ticks, track baselines (print black)'],['muted','#767676','secondary text: in-panel annotations, threshold labels, context names'],['slate','#989898','neutral data: the baseline method, non-hit bars, unranked points'],['rule','#DCDCDC','hairlines, ghost points, “Other” tissue, bands, nulls and floors']],
+    modality:[['atac','#E0A458','amber — the input: query ATAC track, ATAC points, an ATAC-only baseline'],['chip','#5B4B8A','plum — the output/reference: ChIP points, consensus track, held-out gold']],
+    accents:[['red','#E31A1C','the one red: the query mark, the disease/case arm'],['hit','#225EA8','a same-context hit in a ranked list; misses are slate']],
+    case:[['case','#AD547F','rose: the disease / case arm — always'],['control','#5FA19F','teal: the healthy / control arm when it is compared; slate when it is context']],
+    ccre:[['PLS','#596330','promoter-like — dark end of the olive ramp'],['pELS','#87905E','proximal enhancer-like'],['dELS','#B8C093','distal enhancer-like — light, it dominates every bar'],['CTCF / CA / TF','#708FA5','TF-binding-defined classes, collapsed; one dusty blue'],['none','#DCDCDC','no cCRE — rule grey, context']],
+    tissue:['#5B7FA6','#D98E5A','#6B8E6B','#C26B6B','#8A6FA8','#C9A14A','#5BA39B','#9AA0A6']
+  };
+  // ---- sRGB → Lab/LCh ----
+  function hex2rgb(h){return [1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255)}
+  function lin(c){return c<=0.04045?c/12.92:Math.pow((c+0.055)/1.055,2.4)}
+  function lab(hex){const [r,g,b]=hex2rgb(hex).map(lin);
+    const X=(r*0.4124+g*0.3576+b*0.1805)/0.95047, Y=r*0.2126+g*0.7152+b*0.0722, Z=(r*0.0193+g*0.1192+b*0.9505)/1.08883;
+    const f=t=>t>0.008856?Math.cbrt(t):7.787*t+16/116; const fx=f(X),fy=f(Y),fz=f(Z);
+    const L=116*fy-16,a=500*(fx-fy),bb=200*(fy-fz); let h=Math.atan2(bb,a)*180/Math.PI; if(h<0)h+=360;
+    return {L,C:Math.hypot(a,bb),h}}
+  function greyOfL(L){ // equal-lightness neutral grey
+    const fy=(L+16)/116; const Y=fy>0.206893?fy*fy*fy:(fy-16/116)/7.787;
+    const c=Y<=0.0031308?12.92*Y:1.055*Math.pow(Y,1/2.4)-0.055; const v=Math.round(Math.max(0,Math.min(1,c))*255);
+    return '#'+[v,v,v].map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase()}
+  function card(tok,hex,role,pair){
+    const l=lab(hex); const light=l.L<55;
+    const lch=`L ${l.L.toFixed(0)} · C ${l.C.toFixed(1)} · h ${l.h.toFixed(0)}°`;
+    let block;
+    if(pair){const g=greyOfL(l.L);block=`<div class="block"><div style="background:${hex}"><span class="cap ${light?'light':''}">${hex}</span></div><div style="background:${g}"><span class="cap ${light?'light':''}">${g} C 0</span></div></div>`}
+    else block=`<div class="block" style="background:${hex}"></div>`;
+    return `<div class="sw ${pair?'pair':''}">${block}<div class="meta"><div class="tok"><span>${tok}</span><span class="hex">${hex}</span></div><div class="role">${role}</div><div class="lch">${lch}</div></div></div>`}
+  const put=(id,list,pair)=>document.getElementById(id).innerHTML=list.map(x=>card(x[0],x[1],x[2],pair)).join('');
+  put('sw-heroes',T.heroes); put('sw-neutrals',T.neutrals); put('sw-modality',T.modality); put('sw-accents',T.accents); put('sw-case',T.case); put('sw-ccre',T.ccre);
+  document.getElementById('sw-tissue').innerHTML=T.tissue.map((h,i)=>`<div class="t"><div style="background:${h}"></div><span>${i+1} ${h}</span></div>`).join('')+`<div class="t"><div style="background:#DCDCDC"></div><span>Other rule</span></div>`;
+  // ramps
+  const vir=['#440154','#482878','#3E4A89','#31688E','#26828E','#1F9E89','#35B779','#6DCD59','#B4DE2C','#FDE725'];
+  document.getElementById('ramp-viridis').style.background=`linear-gradient(90deg,#DCDCDC 0 14%,${vir.map((c,i)=>c+' '+(14+i*86/9).toFixed(1)+'%').join(',')})`;
+
+  // ---- deterministic PRNG ----
+  let seed=7; const rnd=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff};
+  const gauss=()=>{let u=0,v=0;while(!u)u=rnd();while(!v)v=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)};
+
+  // cloud sample (point size 0.18)
+  document.getElementById('cloud').innerHTML=Array.from({length:220},()=>{const x=30+gauss()*9,y=20+gauss()*6;return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="0.5" fill="${rnd()<0.5?'#E0A458':'#5B4B8A'}" fill-opacity="0.6"/>`}).join('');
+
+
+  // ---- mock: case/control swarms ----
+  function swarm(id,cCase,cCtrl){
+    const s=[]; const y0=18,y1=118; const sy=v=>y1-v*(y1-y0);
+    const arm=(cx,mu,sd,col,lab)=>{ const vals=Array.from({length:38},()=>Math.max(0,Math.min(1,mu+gauss()*sd)));
+      vals.forEach(v=>s.push(`<circle cx="${(cx+gauss()*7).toFixed(1)}" cy="${sy(v).toFixed(1)}" r="1.9" fill="${col}" fill-opacity="0.85"/>`));
+      const m=vals.reduce((a,b)=>a+b)/vals.length; s.push(`<line x1="${cx-14}" y1="${sy(m).toFixed(1)}" x2="${cx+14}" y2="${sy(m).toFixed(1)}" stroke="#000" stroke-width="0.8"/>`);
+      s.push(`<text x="${cx}" y="${y1+11}" font-family="Arial" font-size="7" text-anchor="middle">${lab}</text>`)};
+    arm(80,0.38,0.12,cCtrl,'myometrium'); arm(160,0.66,0.13,cCase,'fibroid');
+    s.push(`<line x1="40" y1="${y1}" x2="40" y2="${y0}" stroke="#000" stroke-width="0.53"/>`);
+    [0,0.5,1].forEach(v=>s.push(`<line x1="37" y1="${sy(v)}" x2="40" y2="${sy(v)}" stroke="#000" stroke-width="0.53"/><text x="35" y="${sy(v)+2.2}" font-family="Arial" font-size="6" text-anchor="end">${v.toFixed(1)}</text>`));
+    s.push(`<text transform="translate(14 68) rotate(-90)" font-family="Arial" font-size="7" text-anchor="middle">Finn weight</text>`);
+    s.push(`<text x="120" y="12" font-family="Arial" font-size="7" text-anchor="middle" fill="#000">*** p = 2e-4</text>`);
+    document.getElementById(id).innerHTML=s.join('')}
+  swarm('mock-case','#AD547F','#5FA19F'); swarm('mock-case2','#AD547F','#989898');
+
+
+  // ---- mock: cCRE stacked bars (real composition) ----
+  (function(){
+    const cols={PLS:'#596330',pELS:'#87905E',dELS:'#B8C093',other:'#708FA5',none:'#DCDCDC'};
+    const rows=[['background',{PLS:.2819,pELS:.1281,dELS:.5614,other:.0155,none:.013}],['bg-only leio',{PLS:.027,pELS:.0688,dELS:.7568,other:.086,none:.0614}],['core leio',{PLS:.0291,pELS:.0699,dELS:.8194,other:.0446,none:.0369}],['core myo',{PLS:0,pELS:.0714,dELS:.9286,other:0,none:0}]];
+    const x0=72,x1=250,y0=14,rh=22; const s=[];
+    rows.forEach((r,i)=>{const y=y0+i*rh; let x=x0;
+      for(const k of ['PLS','pELS','dELS','other','none']){const w=r[1][k]*(x1-x0); if(w>0){s.push(`<rect x="${x.toFixed(1)}" y="${y}" width="${w.toFixed(1)}" height="15" fill="${cols[k]}"/>`); x+=w;}}
+      s.push(`<text x="${x0-4}" y="${y+11}" font-family="Arial" font-size="6" text-anchor="end">${r[0]}</text>`)});
+    const yb=y0+rows.length*rh;
+    s.push(`<line x1="${x0}" y1="${yb}" x2="${x1}" y2="${yb}" stroke="#000" stroke-width="0.53"/>`);
+    [0,.5,1].forEach(v=>{const x=x0+v*(x1-x0); s.push(`<line x1="${x}" y1="${yb}" x2="${x}" y2="${yb+3}" stroke="#000" stroke-width="0.53"/><text x="${x}" y="${yb+11}" font-family="Arial" font-size="6" text-anchor="middle">${v}</text>`)});
+    s.push(`<text x="${(x0+x1)/2}" y="${yb+21}" font-family="Arial" font-size="7" text-anchor="middle">Fraction of regions</text>`);
+    let lx=x0; for(const [k,lab] of [['PLS','PLS'],['pELS','pELS'],['dELS','dELS'],['other','CTCF/CA/TF'],['none','none']]){s.push(`<rect x="${lx}" y="${yb+30}" width="7" height="7" fill="${cols[k]}"/><text x="${lx+9}" y="${yb+36}" font-family="Arial" font-size="6">${lab}</text>`); lx+=9+lab.length*3.4+8;}
+    document.getElementById('mock-ccre').innerHTML=s.join('');
+  })();
+
+
+  // ---- mock: deeptools heatmap ----
+  (function(){
+    const s=[]; const stops=['#FEF5EB','#F7D9A8','#E9B66E','#E0A458','#C77B3A','#A3521F','#6E3013'];
+    const ramp=v=>{const i=Math.max(0,Math.min(stops.length-1,Math.floor(v*(stops.length-1))));return stops[i]};
+    const groups=[['fibroid','#AD547F',70,1.0],['myometrium','#5FA19F',50,0.45]];
+    const x0=44,w=120,ncol=48,y=52; let yy=y;
+    // profile
+    const px=x0,pw=w,ph=30,py=10;
+    groups.forEach(g=>{let d='';for(let i=0;i<=ncol;i++){const t=i/ncol;const v=g[3]*Math.exp(-Math.pow((t-0.5)/0.12,2))+0.08;const X=px+t*pw,Y=py+ph-v*ph*0.9;d+=(i?'L':'M')+X.toFixed(1)+' '+Y.toFixed(1)+' '}s.push(`<path d="${d}" fill="none" stroke="${g[1]}" stroke-width="0.8"/>`)});
+    s.push(`<line x1="${px}" y1="${py+ph}" x2="${px+pw}" y2="${py+ph}" stroke="#000" stroke-width="0.53"/>`);
+    s.push(`<text x="${px+pw/2}" y="${py+ph+8}" font-family="Arial" font-size="5" text-anchor="middle">−3 kb   summit   3 kb</text>`);
+    groups.forEach(g=>{const n=g[2];
+      for(let r=0;r<n;r++){const amp=g[3]*(1-r/n)*(0.85+gauss()*0.08);
+        for(let c=0;c<ncol;c++){const t=c/ncol;const v=Math.max(0,amp*Math.exp(-Math.pow((t-0.5)/0.13,2))+gauss()*0.03);
+          s.push(`<rect x="${(x0+c*w/ncol).toFixed(1)}" y="${(yy+r*1.05).toFixed(1)}" width="${(w/ncol+0.15).toFixed(2)}" height="1.15" fill="${ramp(v)}"/>`)}}
+      const h=n*1.05;
+      s.push(`<rect x="${x0}" y="${yy}" width="${w}" height="${h.toFixed(1)}" fill="none" stroke="#000" stroke-width="0.53"/>`);
+      s.push(`<rect x="${x0-9}" y="${yy}" width="6" height="${h.toFixed(1)}" fill="${g[1]}"/><text transform="translate(${x0-4.5} ${(yy+h/2).toFixed(1)}) rotate(-90)" font-family="Arial" font-size="5" fill="#fff" text-anchor="middle">${g[0]}</text>`);
+      yy+=h+8});
+    // colourbar
+    const cx=x0+w+10, cy=y, ch=70;
+    s.push(`<defs><linearGradient id="cb" x1="0" y1="1" x2="0" y2="0">${stops.map((c,i)=>`<stop offset="${i/(stops.length-1)}" stop-color="${c}"/>`).join('')}</linearGradient></defs>`);
+    s.push(`<rect x="${cx}" y="${cy}" width="6" height="${ch}" fill="url(#cb)" stroke="#000" stroke-width="0.4"/>`);
+    [['0',ch],['15',ch/2],['30',0]].forEach(([l,o])=>s.push(`<text x="${cx+9}" y="${cy+o+2}" font-family="Arial" font-size="5">${l}</text>`));
+    s.push(`<text x="${x0+w/2}" y="${yy+2}" font-family="Arial" font-size="7" text-anchor="middle">ATAC signal</text>`);
+    document.getElementById('mock-heat').innerHTML=s.join('');
+  })();
+
+  // ---- mock 1: embedding ----
+  (function(){
+    const s=[]; const clusters=[[70,80,22],[150,60,18],[190,130,20],[100,145,16],[140,110,12]];
+    for(const [cx,cy,sd] of clusters){for(let i=0;i<160;i++){const x=cx+gauss()*sd,y=cy+gauss()*sd*0.8;const atac=rnd()<0.5;
+      if(atac)s.push(`<path d="M${x.toFixed(1)} ${(y-1.3).toFixed(1)}l1.2 2.2h-2.4z" fill="#E0A458" fill-opacity="0.6"/>`);
+      else s.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="0.9" fill="#5B4B8A" fill-opacity="0.6"/>`)}}
+    const q=[152,64];
+    s.push(`<g stroke="#E31A1C" stroke-width="0.9" stroke-linecap="round"><line x1="${q[0]}" y1="${q[1]-5}" x2="${q[0]}" y2="${q[1]+5}"/><line x1="${q[0]-5}" y1="${q[1]}" x2="${q[0]+5}" y2="${q[1]}"/><line x1="${q[0]-3.5}" y1="${q[1]-3.5}" x2="${q[0]+3.5}" y2="${q[1]+3.5}"/><line x1="${q[0]+3.5}" y1="${q[1]-3.5}" x2="${q[0]-3.5}" y2="${q[1]+3.5}"/></g>`);
+    s.push(`<text x="${q[0]+8}" y="${q[1]+3}" font-family="Arial" font-size="7" fill="#767676">query</text>`);
+    // arrow axes
+    s.push(`<g stroke="#000" stroke-width="0.53" fill="none"><line x1="22" y1="186" x2="22" y2="146"/><line x1="22" y1="186" x2="62" y2="186"/></g><path d="M22 146l-2.2 5h4.4z" fill="#000"/><path d="M62 186l-5-2.2v4.4z" fill="#000"/>`);
+    s.push(`<text x="24" y="196" font-family="Arial" font-size="7">UMAP 1</text><text transform="translate(18 184) rotate(-90)" font-family="Arial" font-size="7">UMAP 2</text>`);
+    // legend inside dead space
+    s.push(`<path d="M28 20l2.5 4.6h-5z" fill="#E0A458"/><text x="35" y="25" font-family="Arial" font-size="7">ATAC</text><circle cx="28" cy="34" r="2.3" fill="#5B4B8A"/><text x="35" y="37" font-family="Arial" font-size="7">ChIP</text>`);
+    document.getElementById('mock-embed').innerHTML=s.join('');
+  })();
+
+  // ---- mock 2: ranked bars ----
+  (function(){
+    const rows=[['#1','B cell · GM12878',0.97,true],['#2','B cell · Raji',0.96,true],['#3','Lymphoblastoid',0.95,false],['#4','B cell · OCI-Ly1',0.93,true],['#5','T cell · Jurkat',0.90,false],['#6','Myeloid · HL-60',0.88,false],['#7','B cell · SU-DHL',0.87,true],['#8','Liver · HepG2',0.84,false]];
+    const x0=92,x1=236,y0=16,rh=19; const sx=v=>x0+(v-0.8)/(1-0.8)*(x1-x0);
+    const s=[]; rows.forEach((r,i)=>{const y=y0+i*rh;
+      s.push(`<rect x="${x0}" y="${y}" width="${(sx(r[2])-x0).toFixed(1)}" height="12" fill="${r[3]?'#225EA8':'#989898'}"/>`);
+      s.push(`<text x="${x0-4}" y="${y+9.5}" font-family="Arial" font-size="6" text-anchor="end" fill="#000">${r[0]}</text>`);
+      s.push(`<text x="${x0-16}" y="${y+9.5}" font-family="Arial" font-size="5" text-anchor="end" fill="#767676">${r[1]}</text>`);
+      s.push(`<text x="${sx(r[2])+3}" y="${y+9.5}" font-family="Arial" font-size="6" fill="#000">${r[2].toFixed(2)}</text>`)});
+    const yb=y0+rows.length*rh+2;
+    s.push(`<line x1="${x0}" y1="${yb}" x2="${x1}" y2="${yb}" stroke="#000" stroke-width="0.53"/>`);
+    [0.8,0.9,1.0].forEach(v=>s.push(`<line x1="${sx(v)}" y1="${yb}" x2="${sx(v)}" y2="${yb+3}" stroke="#000" stroke-width="0.53"/><text x="${sx(v)}" y="${yb+11}" font-family="Arial" font-size="6" text-anchor="middle">${v.toFixed(1)}</text>`));
+    s.push(`<text x="${(x0+x1)/2}" y="${yb+21}" font-family="Arial" font-size="7" text-anchor="middle">Cosine similarity</text>`);
+    s.push(`<line x1="${sx(0.96)}" y1="${y0-6}" x2="${sx(0.96)}" y2="${yb}" stroke="#767676" stroke-width="0.53" stroke-dasharray="1.6 1.6"/><text x="${sx(0.96)}" y="${y0-8}" font-family="Arial" font-size="6" text-anchor="middle" fill="#767676">τ = 0.96</text>`);
+    s.push(`<rect x="${x0}" y="${yb+28}" width="7" height="7" fill="#225EA8"/><text x="${x0+10}" y="${yb+34}" font-family="Arial" font-size="6">same context</text><rect x="${x0+62}" y="${yb+28}" width="7" height="7" fill="#989898"/><text x="${x0+72}" y="${yb+34}" font-family="Arial" font-size="6">other</text>`);
+    document.getElementById('mock-rank').innerHTML=s.join('');
+  })();
+
+  // ---- mock 3: curves ----
+  (function(){
+    const x0=40,x1=236,y0=20,y1=160; const sx=t=>x0+t*(x1-x0), sy=v=>y1-v*(y1-y0);
+    const curve=(f,c,w,dash)=>{let d='';for(let i=0;i<=40;i++){const t=i/40;d+=(i?'L':'M')+sx(t).toFixed(1)+' '+sy(f(t)).toFixed(1)+' '}return `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" ${dash?'stroke-dasharray="1.6 1.6"':''}/>`};
+    const s=[];
+    s.push(`<rect x="${x0}" y="${sy(0.12)}" width="${x1-x0}" height="${sy(0)-sy(0.12)}" fill="#DCDCDC"/><text x="${x1-2}" y="${sy(0.06)+2}" font-family="Arial" font-size="6" text-anchor="end" fill="#767676">chance</text>`);
+    s.push(curve(t=>0.12+0.4*Math.pow(t,0.7),'#989898',0.8));
+    s.push(curve(t=>0.12+0.66*Math.pow(t,0.55),'#3F8E6E',0.8));
+    s.push(curve(t=>0.12+0.74*Math.pow(t,0.5),'#33517F',0.8));
+    s.push(`<g stroke="#000" stroke-width="0.53"><line x1="${x0}" y1="${y1}" x2="${x1}" y2="${y1}"/><line x1="${x0}" y1="${y1}" x2="${x0}" y2="${y0}"/></g>`);
+    [0,0.5,1].forEach(v=>{s.push(`<line x1="${x0-3}" y1="${sy(v)}" x2="${x0}" y2="${sy(v)}" stroke="#000" stroke-width="0.53"/><text x="${x0-5}" y="${sy(v)+2.2}" font-family="Arial" font-size="6" text-anchor="end">${v.toFixed(1)}</text>`);
+      s.push(`<line x1="${sx(v)}" y1="${y1}" x2="${sx(v)}" y2="${y1+3}" stroke="#000" stroke-width="0.53"/><text x="${sx(v)}" y="${y1+11}" font-family="Arial" font-size="6" text-anchor="middle">${v.toFixed(1)}</text>`)});
+    s.push(`<text x="${(x0+x1)/2}" y="${y1+22}" font-family="Arial" font-size="7" text-anchor="middle">Recall</text><text transform="translate(${x0-22} ${(y0+y1)/2}) rotate(-90)" font-family="Arial" font-size="7" text-anchor="middle">Precision</text>`);
+    s.push(`<text x="${sx(0.78)}" y="${sy(0.86)-3}" font-family="Arial" font-size="6" fill="#33517F">Finn</text><text x="${sx(0.58)}" y="${sy(0.62)+9}" font-family="Arial" font-size="6" fill="#3F8E6E">Matcha</text><text x="${sx(0.7)}" y="${sy(0.43)+8}" font-family="Arial" font-size="6" fill="#767676">RP+PCA</text>`);
+    document.getElementById('mock-curve').innerHTML=s.join('');
+  })();
+})();
+</script>
