@@ -1,6 +1,6 @@
 Package: mfdesign
 Title: Matcha + Finn Figure Design System
-Version: 1.1.0
+Version: 1.2.0
 Authors@R: person("Brandon", "Lukas", email = "brandonlukas@gmail.com", role = c("aut", "cre"))
 Description: The shared figure design system of the Matcha/Finn repos (matcha2, finn2,
     matchafinn-apps): colour tokens, type and stroke scales, the journal ggplot2 theme, and the
@@ -9,4 +9,4 @@ License: MIT
 Encoding: UTF-8
 Imports: ggplot2, jsonlite, grid, legendry
 Suggests: svglite, ggrastr, viridisLite, scales
-Collate: tokens.R palette.R theme.R export.R
+Collate: tokens.R palette.R theme.R export.R heatmap.R

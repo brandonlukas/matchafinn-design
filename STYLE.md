@@ -178,8 +178,9 @@ titles centred over the stage.
   through a parent viewport: `pushViewport(viewport(gp = gpar(lwd = 0.4 / 0.75)))` around `draw()`.
 - **Resolution:** rasterise at ≥ 600 dpi with ≥ 1 bin per output pixel (small `binSize`,
   `raster_quality` high) so it reads as continuous, not blocky. Rows sorted by mean signal.
-- **Colourbar:** vertical at the right, 2 mm wide, tick-only (no title), ticks `fs_min`, the
-  clipped max rounded to 2 dp; one per figure, a shared scale across the panels it serves.
+- **Colourbar:** vertical at the right, 2 mm wide, tick-only (no title), ticks and labels
+  *outside* to the right in `fs_min`, the clipped max rounded to 2 dp — `mfdesign::colourbar()`
+  (ComplexHeatmap's own draws ticks inside); one per figure, a shared scale across the panels it serves.
 
 ## 6. Layout and assembly
 
