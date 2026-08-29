@@ -8,8 +8,11 @@ pal <- vapply(.tokens$colour, `[[`, "", "hex")
 pal_tissue <- .tokens$tissue
 
 # Signal ramp — read density (deeptools-style heatmaps, tracks): white -> atac -> umber, through the
-# atac token; ends in umber, never red. ComplexHeatmap: colorRamp2(c(0, zmax / 2, zmax), pal_signal).
+# atac token; ends in umber, never red. The stops sit at pal_signal_at (0, 0.37, 1) so that L* falls
+# linearly (97 -> 72 -> 28) across the range — a perceptually even ramp, not one that darkens twice
+# as fast in its upper half. ComplexHeatmap: colorRamp2(pal_signal_at * zmax, pal_signal).
 pal_signal <- .tokens$signal
+pal_signal_at <- .tokens$signal_at
 
 pal_modality <- c("ATAC" = pal[["atac"]], "ChIP" = pal[["chip"]])
 scale_colour_modality <- function(...) ggplot2::scale_colour_manual(values = pal_modality, ...)

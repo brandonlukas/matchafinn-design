@@ -1,5 +1,5 @@
 export(tokens, tokens_path)
-export(pal, pal_tissue, pal_signal, pal_ccre, pal_modality, pal_arm, ramp)
+export(pal, pal_tissue, pal_signal, pal_signal_at, pal_ccre, pal_modality, pal_arm, ramp)
 export(scale_colour_modality, scale_colour_arm, scale_fill_arm)
 export(fs_label, fs_base, fs_small, fs_min, pt2mm)
 export(theme_nature, theme_embedding)

@@ -113,7 +113,9 @@ meanings (motif is `rule` grey, not a tissue rose).
 
 - **Signal (read density: deeptools-style heatmaps, tracks):** `pal_signal`, white → `atac` →
   umber `#6E3013`, through the atac token so an accessibility heatmap is visibly ATAC-coloured; it
-  ends in umber, not red, so it never quotes `red`. Clip at the 98th percentile (deeptools' zMax).
+  ends in umber, not red, so it never quotes `red`. The atac stop sits at 0.37 of the range
+  (`pal_signal_at`) so L* falls linearly 97 → 72 → 28 (circlize interpolates in Lab); clip at the
+  98th percentile (deeptools' zMax).
 - **Score (cosine, co-binding r, −log10 p_adj, AUPRC — any abstract 0–1 quantity):** viridis on
   0–1; values below 0 collapse to `rule` grey on the same bar (`scale_fill_cosine()`). Co-binding r
   is one-directional in practice (nearly all r ≥ 0) so it takes this ramp, not a diverging one.

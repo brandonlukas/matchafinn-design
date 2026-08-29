@@ -5,6 +5,7 @@ stopifnot(
   identical(names(pal), names(t$colour)),
   all(grepl("^#[0-9A-F]{6}$", c(pal, pal_tissue, pal_signal))),
   pal_signal[2] == pal[["atac"]],                # the signal ramp passes through the atac token
+  identical(pal_signal_at, c(0, 0.37, 1)),
   length(pal_tissue) == 8,
   pal_ccre[["none"]] == pal[["rule"]], length(ramp("matcha", 3)) == 3,
   identical(unname(pal_arm(TRUE)["control"]), pal[["slate"]]),
