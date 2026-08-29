@@ -143,7 +143,7 @@ footer{margin-top:48px;padding-top:14px;border-top:1px solid var(--hair);font-si
 
 <div class="wrap">
 <header>
-  <div class="eyebrow">matchafinn-design · tokens.json + the mfdesign R package · consumed by matcha2 (finn2, matchafinn-apps next)</div>
+  <div class="eyebrow">matchafinn-design · tokens.json + the mfdesign R package · consumed by matcha2 + matchafinn-apps (finn2 next)</div>
   <h1>Matcha + Finn figure design system</h1>
   <p class="lede">One visual language for every figure across the Matcha/Finn repos. This page renders what <code>STYLE.md</code> says, so we can argue about what we <em>see</em>. Everything on white “paper” cards is shown as it prints; page chrome is deliberately untinted so it doesn’t colour the judgement.</p>
   <nav class="toc">
@@ -208,14 +208,14 @@ footer{margin-top:48px;padding-top:14px;border-top:1px solid var(--hair);font-si
   <div class="tissue-row" id="sw-tissue"></div>
   <p class="note">8 desaturated hues + <b>rule</b> for “Other” (context, not a competitor); cap at 8. Only where colour is the sole encoder and illustrative (a UMAP by tissue). These hues are <b>not</b> available for other meanings. “Other” had drifted from <code>grey80</code> (annual-review tag) to slate, which made the grey 8th hue unreadable; on rule grey the full 8 hold.</p>
 
-  <h3>Family ramps — ordered sub-categories <i class="chip settle">settle</i></h3>
+  <h3>Family ramps — ordered sub-categories <i class="chip held">held</i></h3>
   <p class="rule">When a category splits into <em>ordered</em> sub-categories, the sub-categories are a <b>lightness ramp of the parent hue</b> — dark for the focal / nearest / first, light for the rest — never new hues. New hues are spent only on genuinely different families. (This is what the ClairS and rE2G moodboard figures do: precision/recall/F1 as three tints of one method colour; predictor families as ramps.) Baselines already follow it (<code>muted → slate → rule</code>); modality is a two-step ramp across two hues.</p>
 
-  <h3>cCRE classes — proposal <i class="chip settle">settle</i></h3>
+  <h3>cCRE classes <i class="chip held">held</i></h3>
   <p class="rule">ENCODE SCREEN v4 classes for a stacked composition bar (matchafinn-apps, Fig 6). Three families, not eight colours: <b>PLS → pELS → dELS</b> is ordinal by distance to TSS, so it is one olive ramp (dark at the promoter, light distal — and light for dELS, which is 56–93 % of every bar); <b>CTCF / CA / TF</b> is the second family (TF-binding-defined rather than histone-defined), one dusty blue; <b>no cCRE</b> is context, <code>rule</code>. Olive (~115°) is the last hue arc not within 40° of a token; dusty blue is low-chroma (C 16) so it does not read as <code>hit</code>.</p>
   <div class="swatches" id="sw-ccre"></div>
   <div class="panels" style="margin-top:14px;grid-template-columns:repeat(auto-fit,minmax(260px,420px))">
-    <div class="panel"><svg id="mock-ccre" viewBox="0 0 300 150"></svg><div class="cap">Real composition from <b>dars_ccre_summary.json</b>: DAR tiers × cCRE class. Segments ordered PLS → pELS → dELS → CTCF/CA/TF → none from the baseline, so the ramp reads as one bar filling up from the promoter outward.</div></div>
+    <div class="panel"><svg id="mock-ccre" viewBox="0 0 300 150"></svg><div class="cap">Real composition from <b>dars_ccre_summary.json</b> (now what <b>fig6/b_ccre.R</b> draws, via <code>mfdesign::pal_ccre</code>): DAR tiers × cCRE class. Segments ordered PLS → pELS → dELS → CTCF/CA/TF → none from the baseline, so the ramp reads as one bar filling up from the promoter outward.</div></div>
   </div>
   <p class="note">The ENCODE SCREEN colours (red / orange / yellow / blue / pink) are deliberately not used: they are saturated identity colours in another system and would collide with <b>red</b>, <b>atac</b> and <b>hit</b> here.</p>
 
@@ -363,7 +363,7 @@ python3 …/audit_panel.py figures/panels/*.svg                       # font flo
   </div>
 </section>
 
-<footer>source: matchafinn-design/STYLE.md · inst/tokens.json · rendered 2026-08-29 · v1.0 — Finn stays; signal ramp + heatmap conventions held (DAR heatmap restyled)</footer>
+<footer>source: matchafinn-design/STYLE.md · inst/tokens.json · rendered 2026-08-29 · v1.1 — cCRE + family ramps held; matchafinn-apps migrated (mfdesign 1.1.0)</footer>
 </div>
 
 <script>
