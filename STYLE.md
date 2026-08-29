@@ -168,13 +168,18 @@ titles centred over the stage.
 
 - **Frame:** `ink` 0.4 pt around the raster only (a raster needs an extent) — not the profile,
   not the figure. Principle 5 holds everywhere else.
-- **Row groups:** a left strip, 2 mm, filled with the group's own token (arms, cCRE class,
-  tissue); the block's text title sits outside it in `fs_small`. A profile plot above uses the
-  same colours — the strip is its legend.
+- **Row groups:** a left strip, 3 mm, filled with the group's own token (arms, cCRE class,
+  tissue); the block's label sits *inside* the strip (white, rotated, `fs_small`) when the block
+  is tall enough, outside as a horizontal title when it is not.
+- **Profile:** a mean-signal line above each heatmap, one line per row group in the group's
+  colour — the strip is its legend. Tick-only y axis, no label (the unit goes in the caption).
+- **One stroke weight:** frame, profile box + axis and colourbar border are all `rule` 0.4 pt.
+  ComplexHeatmap draws several of these at its default lwd with no argument, so set the default
+  through a parent viewport: `pushViewport(viewport(gp = gpar(lwd = 0.4 / 0.75)))` around `draw()`.
 - **Resolution:** rasterise at ≥ 600 dpi with ≥ 1 bin per output pixel (small `binSize`,
   `raster_quality` high) so it reads as continuous, not blocky. Rows sorted by mean signal.
-- **Colourbar:** one per figure, 6 pt wide, ticks `fs_small`, a shared scale across the panels it
-  serves.
+- **Colourbar:** vertical at the right, 2 mm wide, tick-only (no title), ticks `fs_min`, the
+  clipped max rounded to 2 dp; one per figure, a shared scale across the panels it serves.
 
 ## 6. Layout and assembly
 
