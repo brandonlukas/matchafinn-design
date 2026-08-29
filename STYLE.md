@@ -181,7 +181,10 @@ titles centred over the stage.
 - **Colourbar:** vertical at the right, 2 mm wide, tick-only (no title), ticks and labels
   *outside* to the right in `fs_min` at even (`pretty`) increments, the bar running past the last
   tick to the clipped max — `mfdesign::colourbar()`
-  (ComplexHeatmap's own draws ticks inside); one per figure, a shared scale across the panels it serves.
+  (ComplexHeatmap's own draws ticks inside); its bottom sits on the heatmaps' bottom edge, placed
+  *relative* to a body viewport (`seekViewport("<name>_heatmap_body_<i>_1")`, then a child viewport
+  offset right of `1 npc`) — never device coordinates, which ggplotify's replay cannot resolve. A
+  single centred word under the pair names the signal ("ATAC"); one per figure, a shared scale.
 
 ## 6. Layout and assembly
 
