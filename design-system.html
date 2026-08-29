@@ -143,7 +143,7 @@ footer{margin-top:48px;padding-top:14px;border-top:1px solid var(--hair);font-si
 
 <div class="wrap">
 <header>
-  <div class="eyebrow">matcha2 · finn2 · matchafinn-apps — shared figure system · draft for review</div>
+  <div class="eyebrow">matchafinn-design · tokens.json + the mfdesign R package · consumed by matcha2 (finn2, matchafinn-apps next)</div>
   <h1>Matcha + Finn figure design system</h1>
   <p class="lede">One visual language for every figure across the Matcha/Finn repos. This page renders what <code>STYLE.md</code> says, so we can argue about what we <em>see</em>. Everything on white “paper” cards is shown as it prints; page chrome is deliberately untinted so it doesn’t colour the judgement.</p>
   <nav class="toc">
@@ -359,11 +359,11 @@ python3 …/audit_panel.py figures/panels/*.svg                       # font flo
   <p class="note">Things I’d like your call on, in the order they change the most downstream.</p>
   <div class="qs">
     <div class="q"><b>Where do figure-specific rules go?</b>Everything chipped <i class="chip fig">figure-specific?</i> — agree they move to <code>ASSEMBLY.md</code> / the manuscript repo, leaving this page as the shared system?<div class="where">§3 §6 §7 §8</div></div>
-    <div class="q"><b>Screen variant</b>matchafinn-apps needs the same tokens on screen (ground, ink, dark mode). Should the system define the screen palette here, or only the print one and derive screen from it?<div class="where">§8</div></div>
+    <div class="q"><b>Screen variant</b>matchafinn-apps needs the same tokens on screen (ground, ink, dark mode). tokens.json is now the place; should it grow a <code>screen</code> block, or does the web app derive from the print tokens?<div class="where">§8</div></div>
   </div>
 </section>
 
-<footer>source: make_figures/STYLE.md · make_figures/theme/palette.R · rendered 2026-08-29 · v1.0 — Finn stays; signal ramp + heatmap conventions held (DAR heatmap restyled)</footer>
+<footer>source: matchafinn-design/STYLE.md · inst/tokens.json · rendered 2026-08-29 · v1.0 — Finn stays; signal ramp + heatmap conventions held (DAR heatmap restyled)</footer>
 </div>
 
 <script>
