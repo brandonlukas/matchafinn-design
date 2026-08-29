@@ -48,8 +48,18 @@ crop_panel <- function(name, dir = "figures/panels") {
     message("crop_panel: PDF not found for ", name, " — skipping")
     return(invisible(FALSE))
   }
-  # Visible-ink bbox in PDF points (origin bottom-left), padded slightly.
-  out <- system2(gs, c("-dNOPAUSE", "-dBATCH", "-q", "-sDEVICE=bbox", pdf), stdout = TRUE, stderr = TRUE)
+  # Visible-ink bbox in PDF points (origin bottom-left), padded slightly. Measured on an Inkscape
+  # render OF THE SVG when Inkscape is available: the SVG is the deliverable and its text metrics
+  # (svglite) differ slightly from cairo_pdf's, so a box measured on the cairo PDF can shave the
+  # first glyph of a right-justified label.
+  ink <- Sys.which("inkscape")
+  probe <- pdf
+  if (nzchar(ink) && file.exists(svg)) {
+    probe <- tempfile(fileext = ".pdf")
+    system2(ink, c(svg, "--export-type=pdf", paste0("--export-filename=", probe)), stdout = FALSE, stderr = FALSE)
+    if (!file.exists(probe)) probe <- pdf
+  }
+  out <- system2(gs, c("-dNOPAUSE", "-dBATCH", "-q", "-sDEVICE=bbox", probe), stdout = TRUE, stderr = TRUE)
   hi <- grep("HiResBoundingBox", out, value = TRUE)[1]
   bb <- as.numeric(strsplit(trimws(sub(".*HiResBoundingBox:", "", hi)), "\\s+")[[1]]) # x0 y0 x1 y1
   bb <- bb + c(-pad_pt, -pad_pt, pad_pt, pad_pt)
