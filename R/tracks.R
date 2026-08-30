@@ -26,19 +26,20 @@ gene_track <- function(models, xlim, marker = character(), chrom = NULL) {
   for (i in seq_len(ng)) {
     prom <- toupper(name[i]) %in% marker
     y <- nr - row_of[i] + 1
-    ts <- ts_bp[i] / 1e6; te <- te_bp[i] / 1e6
+    ts <- max(ts_bp[i] / 1e6, xlim[1]); te <- min(te_bp[i] / 1e6, xlim[2]) # clamp to the window
     introns <- rbind(introns, data.frame(x = ts, xend = te, y = y, prom = prom))
     ex <- exl[[i]]
     if (!is.null(ex) && length(unlist(ex)) >= 2) {
-      em <- matrix(as.numeric(unlist(ex)), ncol = 2, byrow = TRUE)
-      exons <- rbind(exons, data.frame(xmin = em[, 1] / 1e6, xmax = em[, 2] / 1e6, y = y, prom = prom))
+      em <- matrix(as.numeric(unlist(ex)), ncol = 2, byrow = TRUE) / 1e6
+      em <- cbind(pmax(em[, 1], xlim[1]), pmin(em[, 2], xlim[2]))
+      exons <- rbind(exons, data.frame(xmin = em[, 1], xmax = em[, 2], y = y, prom = prom)[em[, 2] > em[, 1], ])
     }
     if (te > ts) {
-      pts <- seq(max(ts, xlim[1]), min(te, xlim[2]), length.out = 7)[2:6]
+      pts <- seq(ts, te, length.out = 7)[2:6]
       tip <- diff(xlim) * 0.012 * (if (strand[i] == "-") -1 else 1)
       arrows <- rbind(arrows, data.frame(x = pts, xend = pts + tip, y = y, prom = prom))
     }
-    labs <- rbind(labs, data.frame(x = (max(ts, xlim[1]) + min(te, xlim[2])) / 2, y = y + 0.55, lab = name[i], prom = prom))
+    labs <- rbind(labs, data.frame(x = (ts + te) / 2, y = y + 0.55, lab = name[i], prom = prom))
   }
   if (!any(introns$prom)) introns$prom <- arrows$prom <- labs$prom <- TRUE
   if (!is.null(exons) && !any(exons$prom)) exons$prom <- TRUE
