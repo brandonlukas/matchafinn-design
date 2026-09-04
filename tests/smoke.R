@@ -13,4 +13,10 @@ stopifnot(
   inherits(theme_nature(), "theme"),
   is.list(theme_embedding())
 )
+# gene_track() must read exons the same way whether they arrive as a matrix or a list of pairs
+gm <- list(list(name = "G", strand = "+", tx_start = 1e6, tx_end = 2e6,
+                exons = matrix(c(1.1e6, 1.5e6, 1.2e6, 1.6e6), ncol = 2)))
+ex <- ggplot2::layer_data(gene_track(gm, c(1, 2), marker = "G"), 4L)
+stopifnot(all.equal(ex$xmin, c(1.1, 1.5)), all.equal(ex$xmax, c(1.2, 1.6)))
+
 cat("mfdesign smoke: ok\n")

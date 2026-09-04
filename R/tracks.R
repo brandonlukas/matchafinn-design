@@ -30,7 +30,9 @@ gene_track <- function(models, xlim, marker = character(), chrom = NULL) {
     introns <- rbind(introns, data.frame(x = ts, xend = te, y = y, prom = prom))
     ex <- exl[[i]]
     if (!is.null(ex) && length(unlist(ex)) >= 2) {
-      em <- matrix(as.numeric(unlist(ex)), ncol = 2, byrow = TRUE) / 1e6
+      # exons arrive either as a list of c(start, end) (simplifyVector = FALSE) or as an N x 2
+      # matrix (simplifyVector = TRUE) — unlist()ing the matrix would read it column-major
+      em <- (if (is.matrix(ex)) ex else matrix(as.numeric(unlist(ex)), ncol = 2, byrow = TRUE)) / 1e6
       em <- cbind(pmax(em[, 1], xlim[1]), pmin(em[, 2], xlim[2]))
       exons <- rbind(exons, data.frame(xmin = em[, 1], xmax = em[, 2], y = y, prom = prom)[em[, 2] > em[, 1], ])
     }
