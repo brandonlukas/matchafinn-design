@@ -7,22 +7,11 @@
 # backup + a PNG preview are written alongside.
 save_panel <- function(plot, name, width_mm, height_mm, dir = "figures/panels", png = TRUE) {
   dir.create(dir, showWarnings = FALSE, recursive = TRUE)
-  path <- file.path(dir, name)
-  ggplot2::ggsave(paste0(path, ".svg"), plot,
-    width = width_mm, height = height_mm, units = "mm",
-    device = svglite::svglite, bg = "transparent"
-  )
-  pdf_device <- if (isTRUE(capabilities("cairo"))) grDevices::cairo_pdf else "pdf"
-  ggplot2::ggsave(paste0(path, ".pdf"), plot,
-    width = width_mm, height = height_mm, units = "mm",
-    device = pdf_device, bg = "transparent"
-  )
-  if (png) {
-    ggsave(paste0(path, ".png"), plot,
-      width = width_mm, height = height_mm, units = "mm",
-      dpi = 900, bg = "transparent"
-    )
-  }
+  gg <- function(ext, ...) ggplot2::ggsave(file.path(dir, paste0(name, ext)), plot,
+    width = width_mm, height = height_mm, units = "mm", bg = "transparent", ...)
+  gg(".svg", device = svglite::svglite)
+  gg(".pdf", device = if (isTRUE(capabilities("cairo"))) grDevices::cairo_pdf else "pdf")
+  if (png) gg(".png", dpi = 900)
   invisible(plot)
 }
 
@@ -32,8 +21,9 @@ save_panel <- function(plot, name, width_mm, height_mm, dir = "figures/panels", 
 # — which correctly ignores svglite's transparent full-canvas background (Inkscape's --export-area-
 # drawing does NOT, so it can't crop these). Call it right after save_panel(). Re-render-safe; a
 # no-op (with a message) if the tools are missing, so PC renders without ghostscript still work.
+viewbox <- function(svg_line) as.numeric(strsplit(sub(".*viewBox='([^']+)'.*", "\\1", svg_line), " ")[[1]])
+
 crop_panel <- function(name, dir = "figures/panels") {
-  pad_pt <- 2
   base <- file.path(dir, name)
   svg <- paste0(base, ".svg")
   pdf <- paste0(base, ".pdf")
@@ -62,13 +52,13 @@ crop_panel <- function(name, dir = "figures/panels") {
   out <- system2(gs, c("-dNOPAUSE", "-dBATCH", "-q", "-sDEVICE=bbox", probe), stdout = TRUE, stderr = TRUE)
   hi <- grep("HiResBoundingBox", out, value = TRUE)[1]
   bb <- as.numeric(strsplit(trimws(sub(".*HiResBoundingBox:", "", hi)), "\\s+")[[1]]) # x0 y0 x1 y1
-  bb <- bb + c(-pad_pt, -pad_pt, pad_pt, pad_pt)
+  bb <- bb + c(-2, -2, 2, 2) # 2 pt pad
 
   # SVG: reframe the viewBox. SVG y runs top-down, so flip the box using the canvas height.
   if (file.exists(svg)) {
     s <- readLines(svg, warn = FALSE)
     h <- grep("<svg", s)[1]
-    vb <- as.numeric(strsplit(gsub("viewBox='|'", "", regmatches(s[h], regexpr("viewBox='[^']+'", s[h]))), " ")[[1]])
+    vb <- viewbox(s[h])
     nx <- bb[1]
     ny <- vb[4] - bb[4]
     nw <- bb[3] - bb[1]
@@ -121,7 +111,7 @@ split_panel <- function(name, left, right, dir = "figures/panels") {
   cell_w <- cw[pair[1]]
 
   h <- grep("<svg", s)[1]
-  vb <- as.numeric(strsplit(regmatches(s[h], regexpr("(?<=viewBox=')[^']+", s[h], perl = TRUE)), " ")[[1]])
+  vb <- viewbox(s[h])
   # Drawn elements sit at column 0; their x is `x=`, `cx=`, `points='x,` or `translate(x,`.
   drawn <- grepl("^<(image|circle|text|polyline|polygon|line|path|rect) ", s) &
     grepl(" (x|cx|points)='|translate\\(", s)

@@ -15,37 +15,21 @@ pt_key   <- .tokens$point$key   # one point per group that summarises it (estima
 # The journal theme: black text and lines, no gridlines, transparent background, 0.4 pt lines,
 # two type sizes in use (titles fs_base, tick/legend text one step below).
 theme_nature <- function(base_size = fs_base, base_family = "") {
-  line_size <- .tokens$stroke_pt$rule # pt; STYLE.md §4 "rule"
   secondary <- base_size - 1 # tick labels / legend text one step below titles (fs_small when base=fs_base)
   ggplot2::theme_classic(base_size = base_size, base_family = base_family) +
     ggplot2::theme(
-      text              = ggplot2::element_text(color = "black",
-                                                size = base_size),
-      plot.title        = ggplot2::element_text(color = "black",
-                                                size = base_size,
-                                                face = "plain", hjust = 0),
-      plot.subtitle     = ggplot2::element_text(color = "black",
-                                                size = secondary),
-      plot.tag          = ggplot2::element_text(color = "black",
-                                                size = fs_label,
-                                                face = "bold", hjust = 0),
-      axis.title        = ggplot2::element_text(color = "black",
-                                                size = base_size),
-      axis.text         = ggplot2::element_text(color = "black",
-                                                size = secondary),
-      legend.title      = ggplot2::element_text(color = "black",
-                                                size = base_size),
-      legend.text       = ggplot2::element_text(color = "black",
-                                                size = secondary),
-      strip.text        = ggplot2::element_text(color = "black",
-                                                size = base_size),
-
-      line              = ggplot2::element_line(color = "black",
-                                                linewidth = line_size),
-      axis.line         = ggplot2::element_line(color = "black",
-                                                linewidth = line_size),
-      axis.ticks        = ggplot2::element_line(color = "black",
-                                                linewidth = line_size),
+      # colour is set once on the roots; every text/line element inherits it (strip.text is the
+      # one theme_grey overrides with its own grey, so it is set again)
+      text              = ggplot2::element_text(color = "black", size = base_size),
+      line              = ggplot2::element_line(color = "black", linewidth = .tokens$stroke_pt$rule),
+      plot.title        = ggplot2::element_text(size = base_size, face = "plain", hjust = 0),
+      plot.subtitle     = ggplot2::element_text(size = secondary),
+      plot.tag          = ggplot2::element_text(size = fs_label, face = "bold", hjust = 0),
+      axis.title        = ggplot2::element_text(size = base_size),
+      axis.text         = ggplot2::element_text(size = secondary),
+      legend.title      = ggplot2::element_text(size = base_size),
+      legend.text       = ggplot2::element_text(size = secondary),
+      strip.text        = ggplot2::element_text(color = "black", size = base_size),
 
       panel.grid        = ggplot2::element_blank(),
       panel.background  = ggplot2::element_blank(),

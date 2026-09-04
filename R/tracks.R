@@ -6,13 +6,12 @@
 #   xlim    window in Mb; models are clamped to it
 #   marker  gene names drawn prominent (all, if none match)
 gene_track <- function(models, xlim, marker = character(), chrom = NULL) {
-  gms <- models
-  ng <- if (is.data.frame(gms)) nrow(gms) else length(gms)
+  ng <- if (is.data.frame(models)) nrow(models) else length(models)
   if (ng == 0) return(NULL)
-  col <- function(f) if (is.data.frame(gms)) gms[[f]] else vapply(gms, function(g) g[[f]], gms[[1]][[f]])
+  col <- function(f) if (is.data.frame(models)) models[[f]] else vapply(models, function(g) g[[f]], models[[1]][[f]])
   name <- as.character(col("name")); strand <- as.character(col("strand"))
   ts_bp <- as.numeric(col("tx_start")); te_bp <- as.numeric(col("tx_end"))
-  exl <- if (is.data.frame(gms)) gms$exons else lapply(gms, `[[`, "exons")
+  exl <- if (is.data.frame(models)) models$exons else lapply(models, `[[`, "exons")
   marker <- toupper(marker)
   # greedy row-packing on the window-clamped span so overlapping genes do not collide
   gs <- pmax(ts_bp / 1e6, xlim[1]); ge <- pmin(te_bp / 1e6, xlim[2])
