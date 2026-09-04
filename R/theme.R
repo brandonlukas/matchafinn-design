@@ -7,6 +7,11 @@ fs_min   <- .tokens$type_pt$min   # dense text only; never below
 
 pt2mm <- function(pt) pt / ggplot2::.pt
 
+# Point sizes (ggplot `size`; STYLE.md §4): size is the point's role, never a bare number.
+pt_cloud <- .tokens$point$cloud # every member of a population in the thousands; alpha 0.6, rasterised
+pt_data  <- .tokens$point$data  # observations you could count: swarm, scatter, replicates
+pt_key   <- .tokens$point$key   # one point per group that summarises it (estimate + CI); legend keys
+
 # The journal theme: black text and lines, no gridlines, transparent background, 0.4 pt lines,
 # two type sizes in use (titles fs_base, tick/legend text one step below).
 theme_nature <- function(base_size = fs_base, base_family = "") {
@@ -49,6 +54,14 @@ theme_nature <- function(base_size = fs_base, base_family = "") {
       legend.key        = ggplot2::element_blank(),
       strip.background  = ggplot2::element_blank()
     )
+}
+
+# Axes and bars — STYLE.md §4 (Axes, Bars). axis_cap(x = FALSE) when x is discrete.
+bar_width   <- .tokens$geom$bar_width                    # of the slot; dodged groups share it
+expand_zero <- ggplot2::expansion(mult = c(0, 0.05))     # flush at 0, 5 % headroom
+axis_cap <- function(x = TRUE, y = TRUE) {
+  cap <- ggplot2::guide_axis(cap = "both")
+  ggplot2::guides(x = if (x) cap, y = if (y) cap)
 }
 
 # Embedding add-on (UMAP / PCA / t-SNE): arrowed, corner-cropped axis guides, no ticks or text,

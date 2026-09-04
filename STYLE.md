@@ -6,6 +6,10 @@ One visual language for every figure of the Matcha/Finn manuscript and all three
 everything from it. `design-system.html` is the same system rendered. Discipline is Swiss
 (hairlines, restraint, fewest sizes); the colour is ours.
 
+Exemplar: scE2G (Nature Genetics 2026; `manuscript_matchafinn/refs/mood/sce2g-2026.pdf`) — the
+figure system ours is calibrated against. Our tokens, its discipline: capped axes, uncapped CIs,
+estimate-over-population dot plots, grey-stage schematics with real thumbnails, numbered leaders.
+
 Status of a rule: **held** = already true everywhere; **settle** = currently inconsistent, the
 rule below is the resolution (applied 2026-08-28; the log is at the end).
 
@@ -155,10 +159,77 @@ titles centred over the stage.
 | point · mean / key | 1.6 | legend keys (`override.aes`), summary points |
 | point · query | 3 × pt^0.5 | the asterisk; scales sub-linearly with zoom |
 
+### Points — size is the role, not the value — *settle*
+
+| token | size | role |
+|---|---|---|
+| `pt_cloud` | 0.18, α 0.6, rasterised | every member of a population in the thousands (embeddings) |
+| `pt_data` | 1.0 | observations you could count: swarm and scatter points, replicates; α 0.6 once they overplot |
+| `pt_key` | 1.6 | one point per group that summarises it — an estimate with its CI, a model's operating point on a curve — and legend keys |
+
+- **Estimate over population.** A group's estimate is a `pt_key` point in its colour with an
+  uncapped CI; the population it is read against is a `pt_data` swarm in `slate` (principle 2).
+  One panel, both sizes, and the eye finds the claim.
+- Sizes come from the token (`size = pt_data`), never a bare number, and do not scale with the
+  panel box: a point is the same size in a 40 mm and an 80 mm panel.
+- **Shape:** filled circles, no outline (shape 16). Shape distinguishes only modality
+  (ATAC ▲ / ChIP ●); the query alone is the asterisk.
+- **Size as an encoding** (count in a dot plot) is the one place it varies: area-proportional,
+  `scale_size_area(max_size = 2 * pt_key)`, at most 4 legend breaks; never size and colour for
+  the same variable.
+
+### Axes — *settle*
+
+One rule decides both the padding and the corner: **a mark that grows from the axis touches it;
+a mark that sits on a value does not.**
+
+- **Zero.** A quantity with a true zero (count, fraction, rate, any 0–1 score, signal) starts at
+  0. Bars never start anywhere else and an axis is never broken: if the range is too wide, use a
+  log axis with points, or an inset. Quantities without a zero (embedding coordinates, log scales)
+  take the data range; a diverging quantity (log2 FC, z) is symmetric about 0 with the zero drawn
+  as a dashed `muted` line (an a-priori constant, above).
+- **Padding.** Bars, areas, densities, ECDFs, tracks: `expand_zero` (`expansion(mult = c(0, 0.05))`)
+  on the value axis — flush at 0, 5 % headroom, more only to fit value labels. Points and lines:
+  the symmetric 5 % default, so a point at 0 or 1 is not halved by the axis line; bounded scores
+  keep `limits = c(0, 1)` and the padding sits outside them.
+- **Cap.** A continuous axis line runs from the first to the last labelled tick and no further —
+  `axis_cap()` (`guide_axis(cap = "both")`) — so the ends of a bounded axis are always ticks. Two
+  consequences, both intended: with `expand_zero` the axes meet at the origin (bars, areas); with
+  symmetric padding they do not, and the open corner says nothing sits on 0 (scatter, PR curves).
+  A discrete axis is a baseline, not a ruler: it spans every category and is never capped
+  (`axis_cap(x = FALSE)`).
+- **Ticks.** Outside, `rule` weight, 3–5 labelled breaks per axis. Log axes label `10^n`
+  (`scales::label_log()`), major ticks only, no minor ticks. Discrete axes carry ticks too
+  (*held*, the theme default): one per category, same length and weight, the label centred on
+  its tick, so a label is tied to its row.
+- **Aspect.** Axes in the same unit (precision vs recall, one score against itself) are square
+  (`aspect.ratio = 1`); otherwise free, set by the mm box.
+- **Titles.** The axis title carries the quantity, then its denominator and the n on their own
+  lines — `"Recall\n(fraction of variants in predicted enhancers)\nn = 7,209 variants"` — so the
+  caption does not have to. Units in parentheses (`Distance (kb)`).
+
+### Bars and error bars — *settle*
+
+| | value | |
+|---|---|---|
+| bar | **0.6** of the slot (`bar_width`) | one number for vertical, horizontal and stacked bars; bar : gap = 3 : 2 |
+| dodged | `position_dodge(width = bar_width)` + `width = bar_width` | a group shares the one slot, bars touching; the 0.4 gap stays between groups |
+| outline | none | fill only; a stacked bar's segments meet with no stroke |
+| error bar | `emphasis` 0.6 pt, **no caps** (`width = 0`) | a line through the mean mark (`key` point, or a 0.6 pt bar across a swarm) |
+
+Bars sit on the axis line (`expand_zero`); they never float. Rows are ordered by value unless
+principle 4 fixes the order.
+
 ## 5. Legends and labels
 
 - **Direct labels beat legends.** Label clusters/lines on the plot (`muted`, `fs_small`) when
-  ≤ 8 items fit; a legend only when they don't.
+  ≤ 8 items fit. Above eight, number the items: a dashed hairline leader from each curve's end
+  to its number, set in the item's colour, and one numbered key per figure. A legend only for
+  discrete categories with no mark to lead from.
+- **Significance.** In a dot plot, stars sit to the right of the CI (`fs_base`, ink). Over
+  distributions, a bracket (`rule` 0.4 pt, ink, 3 pt down-ticks) with the exact P above it in
+  `fs_small` (`P = 2.4 × 10⁻⁴`); stars alone only when more than three comparisons share a
+  panel. Never both a P and stars.
 - Each legend **once per figure**; a key shared by two panels lives between them.
 - Placement priority: inside the panel's dead space → top-left above the panel, horizontal,
   left-justified → right of the panel. Keys `unit(7, "pt")`. Colourbars
@@ -196,9 +267,20 @@ titles centred over the stage.
 - **Panel letters:** 8 pt Arial Black lowercase, top-left, a fixed 1 mm outside the panel's ink box.
 - **Zoom / magnifier:** source box `ink` 0.4 pt on the full view; two `rule`-grey 0.25 pt leaders
   to the zoom's corners; the zoom shows exactly the boxed region (`expand = FALSE`).
-- **Schematics:** 1 unit = 1 mm, same tokens, flat fills, 0.18 pt outlines, arrows with the
-  theme_embedding head (closed, 22°, 0.3 lines).
 - Figure narratives (act structure, which panel zooms into which) are per-repo: `ASSEMBLY.md`.
+
+### Schematics — *settle*
+
+- **Stages** are flat `rule`-grey blocks (the scE2G stage grey is L* 89; `rule` is L* 88), no
+  stroke, square corners, each with a numbered title in `fs_base` centred above it:
+  `(1) Query ATAC track`. Flow between stages: `ink` rule-weight connectors with the closed 22°
+  head (`theme_embedding`'s). 1 unit = 1 mm; text sizes as §3.
+- **Thumbnails**, not icons (principle 6): real data drawn in the data tokens on a white strip
+  inside the stage — a track in `atac`, an embedding with the `red` query, a ranked list in
+  `hit` / `slate`, the synthesized track in `finn`. 0.18 pt outlines only where a shape needs an
+  edge on the grey.
+- **One coloured arrow means an output.** It takes the method's hue — `matcha` for the rank,
+  `finn` for the blend — never a third colour. Everything else that moves is `ink`.
 
 ## 7. Export pipeline — *held*
 
@@ -247,3 +329,14 @@ matcha2 is the first consumer. Figure-specific rules (acts, d→d zoom letters, 
 repo's `ASSEMBLY.md`.
 
 2026-08-29 — v1.1.0: `pal_ccre` and `ramp()` (family ramps); matchafinn-apps is the second consumer.
+
+2026-09-04 — v1.5.0: axes and bars settled (§4). True-zero quantities start at 0, never broken;
+`expand_zero` for marks that grow from the axis, symmetric padding for marks that sit on a value;
+continuous axes capped at the outer ticks (`axis_cap()`), discrete axes never; `bar_width` 0.6,
+dodged groups share the slot; error bars uncapped. Points: `pt_cloud` / `pt_data` / `pt_key`
+exported, size is the role not the value, estimate over population (a `pt_key` + CI in colour
+over a `pt_data` swarm in slate); discrete axes keep their ticks. scE2G named as the exemplar and
+its five remaining conventions adopted: `rule`-grey schematic stages with numbered titles and one
+output arrow in the method hue; the axis title carries denominator and n; stars right of a CI,
+bracket + exact P over distributions; numbered leaders above eight items. `design-system.html` re-rendered from this file
+(the review flags and open questions retired; figure-specific rules live in each repo's `ASSEMBLY.md`).

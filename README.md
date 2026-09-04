@@ -7,10 +7,9 @@ The shared figure design system of the Matcha/Finn repos (`matcha2`, `finn2`, `m
   canvas. The only file allowed to contain a hex literal.
 - **`STYLE.md`** — the rules (what each token means, when a frame is allowed, the three ramps…).
 - **`design-system.html`** — the same system rendered visually, for review.
-- **`R/`** — the `mfdesign` package: `pal`, `pal_tissue`, `pal_signal`, `pal_arm()`, the scales,
-  `fs_*` / `pt2mm()`, `theme_nature()`, `theme_embedding()`, and the export helpers
-  `save_panel()` / `crop_panel()` / `split_panel()` / `save_legend()`. Everything is derived from
-  `tokens.json` at install.
+- **`R/`** — the `mfdesign` package (the export list is `NAMESPACE`): tokens as R objects, the
+  scales, `theme_nature()`, the axis/bar helpers and the panel export helpers. Everything is
+  derived from `tokens.json` at install.
 
 ## Use
 
